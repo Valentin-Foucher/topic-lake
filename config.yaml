@@ -1,0 +1,2 @@
+postgres:
+  connection_string: !ENV ${POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING}
