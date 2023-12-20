@@ -6,7 +6,7 @@ from topic_recommendations.interactor.dtos.outputs.topics import GetTopicOutputD
 
 class ListTopicsPresenter(Presenter):
     def present(self, output_dto: ListTopicsOutputDto):
-        return {'topics': None}
+        return {'topics': [dataclasses.asdict(topic) for topic in output_dto.topic_list]}
 
 
 class GetTopicPresenter(Presenter):

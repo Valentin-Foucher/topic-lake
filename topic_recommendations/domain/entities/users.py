@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class Topic:
+class User:
     id: int
-    content: str
-    user_id: int
+    name: str

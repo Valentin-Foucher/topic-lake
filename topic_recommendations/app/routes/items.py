@@ -27,6 +27,6 @@ async def get_item(item_id: int):
     return view.get(item_id)
 
 
-@router.get('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_item(item_id: int):
     view.delete(item_id)

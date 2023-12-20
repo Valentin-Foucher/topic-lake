@@ -1,3 +1,4 @@
+import inspect
 import logging
 
 from sqlalchemy import create_engine
@@ -11,7 +12,8 @@ session = scoped_session(sessionmaker(bind=engine))
 
 Model = declarative_base(name='Model')
 Model.query = session.query_property()
-Model.as_dict = lambda s, c: {c.name: getattr(s, c.name) for c in s.__table__.columns}
+Model.as_dataclass = lambda s, clz: clz(**{c.name: getattr(s, c.name) for c in s.__table__.columns
+                                           if c.name in inspect.signature(clz).parameters})
 
 logger = logging.getLogger(__name__)
 

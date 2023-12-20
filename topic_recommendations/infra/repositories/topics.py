@@ -8,23 +8,26 @@ from topic_recommendations.interactor.interfaces.repositories.topics import ITop
 
 
 class TopicsRepository(ITopicsRepository):
+    def _get_by_id(self, topic_id: int):
+        return session.scalars(
+            select(TopicModel).filter_by(id=topic_id).limit(1)
+        ).one()
+
     def list(self, limit: int = 100) -> ListTopicsOutputDto:
         topic_list = session.scalars(
             select(TopicModel).limit(limit)
         ).all()
-        return ListTopicsOutputDto(topic_list=[Topic(**topic.as_dict()) for topic in topic_list])
+        return ListTopicsOutputDto(topic_list=[topic.as_dataclass(Topic) for topic in topic_list])
 
     def create(self, user_id: int, content: str):
         session.add(TopicModel(user_id=user_id, content=content))
         session.commit()
 
     def get(self, topic_id: int) -> GetTopicOutputDto:
-        topic = session.scalars(
-            select(TopicModel).filter_by(id=topic_id).limit(1)
-        ).one()
-        return GetTopicOutputDto(topic=Topic(**topic.as_dict()))
+        topic = self._get_by_id(topic_id)
+        return GetTopicOutputDto(topic=topic.as_dataclass(Topic))
 
     def delete(self, topic_id: int):
-        topic = self.get(topic_id)
+        topic = self._get_by_id(topic_id)
         session.delete(topic)
         session.commit()

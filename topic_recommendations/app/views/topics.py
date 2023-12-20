@@ -1,10 +1,10 @@
 from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter
 from topic_recommendations.app.views.base import View
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
-from topic_recommendations.interactor.use_cases.create_topic import CreateTopic
-from topic_recommendations.interactor.use_cases.delete_topic import DeleteTopic
-from topic_recommendations.interactor.use_cases.get_topic import GetTopic
-from topic_recommendations.interactor.use_cases.list_topics import ListTopics
+from topic_recommendations.interactor.use_cases.topics.create_topic import CreateTopic
+from topic_recommendations.interactor.use_cases.topics.delete_topic import DeleteTopic
+from topic_recommendations.interactor.use_cases.topics.get_topic import GetTopic
+from topic_recommendations.interactor.use_cases.topics.list_topics import ListTopics
 
 
 class TopicsView(View):
