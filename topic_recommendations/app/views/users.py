@@ -2,14 +2,14 @@ from fastapi import HTTPException
 from starlette import status
 
 from topic_recommendations.app.presenters.users import GetUserPresenter
-from topic_recommendations.app.views.base import View
+from topic_recommendations.app.views.base import Controller
 from topic_recommendations.interactor.exceptions import AlreadyExist
 from topic_recommendations.interactor.interfaces.repositories.users import IUsersRepository
 from topic_recommendations.interactor.use_cases.users.create_user import CreateUser
 from topic_recommendations.interactor.use_cases.users.get_user import GetUser
 
 
-class UsersView(View):
+class UsersController(Controller):
     _repository: IUsersRepository
 
     def create(self, name: str, password: str):

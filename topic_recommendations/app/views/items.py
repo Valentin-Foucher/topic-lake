@@ -1,5 +1,5 @@
 from topic_recommendations.app.presenters.items import ListItemsPresenter, GetItemPresenter
-from topic_recommendations.app.views.base import View
+from topic_recommendations.app.views.base import Controller
 from topic_recommendations.interactor.interfaces.repositories.items import IItemsRepository
 from topic_recommendations.interactor.use_cases.items.create_item import CreateItem
 from topic_recommendations.interactor.use_cases.items.delete_item import DeleteItem
@@ -7,7 +7,7 @@ from topic_recommendations.interactor.use_cases.items.get_item import GetItem
 from topic_recommendations.interactor.use_cases.items.list_items import ListItems
 
 
-class ItemsView(View):
+class ItemsController(Controller):
     _repository: IItemsRepository
 
     def list(self):

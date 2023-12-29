@@ -2,14 +2,14 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.app.models.users import CreateUserModel
-from topic_recommendations.app.views.users import UsersView
+from topic_recommendations.app.views.users import UsersController
 from topic_recommendations.infra.repositories.users import UsersRepository
 
 router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
-view = UsersView(UsersRepository())
+view = UsersController(UsersRepository())
 
 
 @router.post('', status_code=status.HTTP_204_NO_CONTENT)

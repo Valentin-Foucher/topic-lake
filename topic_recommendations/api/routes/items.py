@@ -2,14 +2,14 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.app.models.items import CreateItemModel
-from topic_recommendations.app.views.items import ItemsView
+from topic_recommendations.app.views.items import ItemsController
 from topic_recommendations.infra.repositories.items import ItemsRepository
 
 router = APIRouter(
     prefix="/items",
     tags=["items"]
 )
-view = ItemsView(ItemsRepository())
+view = ItemsController(ItemsRepository())
 
 
 @router.get('/', status_code=status.HTTP_200_OK)

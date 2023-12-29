@@ -2,14 +2,14 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.app.models.topics import CreateTopicModel
-from topic_recommendations.app.views.topics import TopicsView
+from topic_recommendations.app.views.topics import TopicsUsers
 from topic_recommendations.infra.repositories.topics import TopicsRepository
 
 router = APIRouter(
     prefix="/topics",
     tags=["topics"]
 )
-view = TopicsView(TopicsRepository())
+view = TopicsUsers(TopicsRepository())
 
 
 @router.get('', status_code=status.HTTP_200_OK)
