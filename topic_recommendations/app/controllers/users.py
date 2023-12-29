@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from starlette import status
 
 from topic_recommendations.app.presenters.users import GetUserPresenter
-from topic_recommendations.app.views.base import Controller
+from topic_recommendations.app.controllers.base import Controller
 from topic_recommendations.exceptions import BadRequest, NotFound
 from topic_recommendations.interactor.exceptions import AlreadyExist
 from topic_recommendations.interactor.interfaces.repositories.users import IUsersRepository

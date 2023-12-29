@@ -1,5 +1,5 @@
 from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter
-from topic_recommendations.app.views.base import Controller
+from topic_recommendations.app.controllers.base import Controller
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_recommendations.interactor.use_cases.topics.create_topic import CreateTopic
 from topic_recommendations.interactor.use_cases.topics.delete_topic import DeleteTopic

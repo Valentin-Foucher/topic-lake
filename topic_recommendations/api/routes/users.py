@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from starlette import status
 
-from topic_recommendations.app.models.users import CreateUserModel
-from topic_recommendations.app.views.users import UsersController
+from topic_recommendations.api.models.users import CreateUserModel
+from topic_recommendations.app.controllers.users import UsersController
 from topic_recommendations.infra.repositories.users import UsersRepository
 
 router = APIRouter(

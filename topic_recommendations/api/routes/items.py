@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from starlette import status
 
-from topic_recommendations.app.models.items import CreateItemModel
-from topic_recommendations.app.views.items import ItemsController
+from topic_recommendations.api.models.items import CreateItemModel
+from topic_recommendations.app.controllers.items import ItemsController
 from topic_recommendations.infra.repositories.items import ItemsRepository
 
 router = APIRouter(
