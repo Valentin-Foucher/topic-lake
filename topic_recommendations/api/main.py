@@ -3,13 +3,12 @@ from fastapi import FastAPI
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
 
-from topic_recommendations.infra.db.core import init_db
-
-
-from topic_recommendations.app.main_router import router
+from topic_recommendations.api.utils.app_utils import add_error_handlers, add_routers, lifespan
 from topic_recommendations.config import load_config
-init_db()
-app = FastAPI()
+
+"""Definition of the API"""
+
+app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -17,15 +16,14 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
-app.include_router(router)
+
+add_routers(app)
+add_error_handlers(app)
 
 
 @app.get('/', status_code=status.HTTP_204_NO_CONTENT)
 async def root():
     pass
-
-
-
 
 
 if __name__ == '__main__':
