@@ -13,6 +13,10 @@ from topic_recommendations.interactor.use_cases.users.get_user import GetUser
 class UsersController(Controller):
     _repository: IUsersRepository
 
+    def with_repository(self, repository: IUsersRepository) -> 'UsersController':
+        self._repository = repository
+        return self
+
     def create(self, name: str, password: str):
         try:
             CreateUser(self._repository).execute(name, password)

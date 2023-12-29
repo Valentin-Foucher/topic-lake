@@ -9,14 +9,20 @@ router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
-view = UsersController(UsersRepository())
 
 
 @router.post('', status_code=status.HTTP_204_NO_CONTENT)
 async def create_users(user: CreateUserModel):
-    view.create(user.name, user.password)
+    UsersController() \
+        .with_repository(UsersRepository()) \
+        .create(
+            user.name,
+            user.password
+        )
 
 
 @router.get('/{user_id}', status_code=status.HTTP_200_OK)
 async def get_topic(user_id: int):
-    return view.get(user_id)
+    return UsersController() \
+        .with_repository(UsersRepository()) \
+        .get(user_id)

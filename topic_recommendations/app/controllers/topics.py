@@ -7,8 +7,12 @@ from topic_recommendations.interactor.use_cases.topics.get_topic import GetTopic
 from topic_recommendations.interactor.use_cases.topics.list_topics import ListTopics
 
 
-class TopicsUsers(Controller):
+class TopicsController(Controller):
     _repository: ITopicsRepository
+
+    def with_repository(self, repository: ITopicsRepository) -> 'TopicsController':
+        self._repository = repository
+        return self
 
     def list(self):
         return ListTopics(ListTopicsPresenter(), self._repository).execute()

@@ -10,6 +10,10 @@ from topic_recommendations.interactor.use_cases.items.list_items import ListItem
 class ItemsController(Controller):
     _repository: IItemsRepository
 
+    def with_repository(self, repository: IItemsRepository) -> 'ItemsController':
+        self._repository = repository
+        return self
+
     def list(self):
         return ListItems(ListItemsPresenter(), self._repository).execute()
 
