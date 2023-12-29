@@ -17,7 +17,8 @@ class TopicsRepository(ITopicsRepository):
         topic_list = session.scalars(
             select(TopicModel).limit(limit)
         ).all()
-        return [topic.as_dataclass(Topic) for topic in topic_list]
+
+        return [Topic(**topic.mappings().all()) for topic in topic_list]
 
     def create(self, user_id: int, content: str):
         session.add(TopicModel(user_id=user_id, content=content))
@@ -25,7 +26,7 @@ class TopicsRepository(ITopicsRepository):
 
     def get(self, topic_id: int) -> Topic:
         topic = self._get_by_id(topic_id)
-        return topic.as_dataclass(Topic)
+        return Topic(**topic.mappings().all())
 
     def delete(self, topic_id: int):
         topic = self._get_by_id(topic_id)

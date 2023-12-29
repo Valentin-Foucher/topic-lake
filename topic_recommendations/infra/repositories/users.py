@@ -22,7 +22,7 @@ class UsersRepository(IUsersRepository):
         except NoResultFound:
             return None
 
-        return user.as_dataclass(User)
+        return User(**user.mappings().all())
 
     def get_by_name(self, name: str) -> Optional[User]:
         try:
@@ -32,4 +32,4 @@ class UsersRepository(IUsersRepository):
         except NoResultFound:
             return None
 
-        return user.as_dataclass(User)
+        return User(**user.mappings().all())

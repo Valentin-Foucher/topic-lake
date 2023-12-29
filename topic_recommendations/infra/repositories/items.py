@@ -19,7 +19,7 @@ class ItemsRepository(IItemsRepository):
 
     def get(self, item_id: int) -> Item:
         item = self._get_by_id(item_id)
-        return Item(**item.as_dict())
+        return Item(**item.mappings().all())
 
     def delete(self, item_id: int):
         item = self._get_by_id(item_id)
@@ -30,4 +30,4 @@ class ItemsRepository(IItemsRepository):
         item_list = session.scalars(
             select(ItemModel).limit(limit)
         ).all()
-        return [Item(**item.as_dict()) for item in item_list]
+        return [Item(**item.mappings().all()) for item in item_list]
