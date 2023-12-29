@@ -1,3 +1,4 @@
+import copy
 from typing import Any
 
 from frozendict import frozendict
@@ -7,12 +8,46 @@ def wrap(obj: Any) -> list[Any]:
     return obj if isinstance(obj, list) else [obj]
 
 
-def get_nested_element(d: dict[str, Any], path: str) -> Any:
-    v = d
+def get_nested_element(o: dict[str, Any] | list[Any], path: str) -> Any:
+    """
+    Recursive function allowing to find nested values inside a complex structure.
+    Returned value is a copy of the actual value, thus it cannot update the value from the originated dict or list
+
+    eg: o: [
+        {
+            "a": [
+                "b",
+                {
+                    "c": "d"
+                }
+            ],
+            "e": "f"
+        }
+    ]
+    >>> get_nested_element(o, '0.a.1.c')
+    "d"
+    >>> get_nested_element(o, '0.e')
+    "f"
+    >>> get_nested_element(o, '0.a')
+    ("b", {"c": "d"})
+
+    :param o: a dict or a list
+    :param path: the path towards the value
+    :return: the desired value or None if it does not exist
+    """
+    v = copy.deepcopy(o)
     for p in path.split('.'):
-        if p not in v:
+        if isinstance(v, dict) and p not in v:
             return None
-        v = v.get(p)
+        elif isinstance(v, list):
+            try:
+                if int(p) > len(v) - 1:
+                    raise ValueError
+                p = int(p)
+            except ValueError:
+                return None
+
+        v = v[p]
 
     if isinstance(v, dict):
         v = frozendict(v)

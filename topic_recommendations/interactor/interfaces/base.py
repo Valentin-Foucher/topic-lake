@@ -6,10 +6,6 @@ class Repository(ABC):
     pass
 
 
-class OutputDto(ABC):
-    pass
-
-
 class Presenter(ABC):
     @abstractmethod
     def present(self, *args, **kwargs) -> dict[str, Any]:
