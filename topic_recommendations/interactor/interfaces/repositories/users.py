@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from topic_recommendations.interactor.dtos.outputs.users import GetUserOutputDto
-from topic_recommendations.interactor.interfaces.repositories.base import Repository
+from topic_recommendations.domain.entities.users import User
+from topic_recommendations.interactor.interfaces.base import Repository
 
 
 class IUsersRepository(Repository, ABC):
@@ -11,9 +11,9 @@ class IUsersRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def get(self, user_id: int) -> Optional[GetUserOutputDto]:
+    def get(self, user_id: int) -> Optional[User]:
         pass
 
     @abstractmethod
-    def get_by_name(self, name: str) -> Optional[GetUserOutputDto]:
+    def get_by_name(self, name: str) -> Optional[User]:
         pass

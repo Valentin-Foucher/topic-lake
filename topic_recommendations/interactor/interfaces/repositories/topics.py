@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 
-from topic_recommendations.interactor.dtos.outputs.topics import GetTopicOutputDto, ListTopicsOutputDto
-from topic_recommendations.interactor.interfaces.repositories.base import Repository
+from topic_recommendations.domain.entities.topics import Topic
+from topic_recommendations.interactor.interfaces.base import Repository
 
 
 class ITopicsRepository(Repository, ABC):
     @abstractmethod
-    def list(self) -> ListTopicsOutputDto:
+    def list(self, limit: int = 100) -> list[Topic]:
         pass
 
     @abstractmethod
@@ -14,7 +14,7 @@ class ITopicsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def get(self, topic_id: int) -> GetTopicOutputDto:
+    def get(self, topic_id: int) -> Topic:
         pass
 
     @abstractmethod

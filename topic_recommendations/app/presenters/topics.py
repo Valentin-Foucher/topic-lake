@@ -1,14 +1,14 @@
 import dataclasses
 
-from topic_recommendations.app.presenters.base import Presenter
-from topic_recommendations.interactor.dtos.outputs.topics import GetTopicOutputDto, ListTopicsOutputDto
+from topic_recommendations.domain.entities.topics import Topic
+from topic_recommendations.interactor.interfaces.base import Presenter
 
 
 class ListTopicsPresenter(Presenter):
-    def present(self, output_dto: ListTopicsOutputDto):
-        return {'topics': [dataclasses.asdict(topic) for topic in output_dto.topic_list]}
+    def present(self, topics_list: list[Topic]):
+        return {'topics': [dataclasses.asdict(topic) for topic in topics_list]}
 
 
 class GetTopicPresenter(Presenter):
-    def present(self, output_dto: GetTopicOutputDto):
-        return {'topic': dataclasses.asdict(output_dto.topic)}
+    def present(self, topic: Topic):
+        return {'topic': dataclasses.asdict(topic)}

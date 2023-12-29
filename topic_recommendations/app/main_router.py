@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 
-from topic_recommendations.api.routes import router as items_router
+from topic_recommendations.api.routes.items import router as items_router
 from topic_recommendations.api.routes.topics import router as topics_router
 from topic_recommendations.api.routes.users import router as users_router
 

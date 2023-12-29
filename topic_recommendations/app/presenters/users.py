@@ -1,9 +1,9 @@
 import dataclasses
 
-from topic_recommendations.app.presenters.base import Presenter
-from topic_recommendations.interactor.dtos.outputs.users import GetUserOutputDto
+from topic_recommendations.domain.entities.users import User
+from topic_recommendations.interactor.interfaces.base import Presenter
 
 
 class GetUserPresenter(Presenter):
-    def present(self, output_dto: GetUserOutputDto):
-        return {'user': dataclasses.asdict(output_dto.user)}
+    def present(self, user: User):
+        return {'user': dataclasses.asdict(user)}
