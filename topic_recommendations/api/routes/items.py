@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from starlette import status
 
 from topic_recommendations.api import dependencies
-from topic_recommendations.api.models.items import CreateItemModel
+from topic_recommendations.api.models.items import CreateItemModel, ListItems, GetItem
 from topic_recommendations.app.controllers.items.create import CreateItemController
 from topic_recommendations.app.controllers.items.delete import DeleteItemController
 from topic_recommendations.app.controllers.items.get import GetItemController
@@ -26,7 +26,7 @@ GetItemPresenterDependency = \
     Annotated[GetItemPresenter, Depends(partial(dependencies.get_presenter, 'get'))]
 
 
-@router.get('/', status_code=status.HTTP_200_OK)
+@router.get('/', status_code=status.HTTP_200_OK, response_model=ListItems)
 async def list_items(presenter: ListItemsPresenterDependency, items_repository: ItemsRepositoryDependency):
     return ListItemsController(presenter, items_repository).execute()
 
@@ -40,7 +40,7 @@ async def create_item(item: CreateItemModel, items_repository: ItemsRepositoryDe
     )
 
 
-@router.get('/{item_id}', status_code=status.HTTP_200_OK)
+@router.get('/{item_id}', status_code=status.HTTP_200_OK, response_model=GetItem)
 async def get_item(item_id: int, presenter: GetItemPresenterDependency, items_repository: ItemsRepositoryDependency):
     return GetItemController(presenter, items_repository).execute(item_id)
 
