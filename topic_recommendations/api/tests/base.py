@@ -9,7 +9,7 @@ from topic_recommendations.utils.object_utils import get_nested_element
 
 
 os.environ['POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING'] = \
-    'postgres://postgres:postrgres@localhost:5432/topic-recommendations'
+    'postgres://postgres:postgres@localhost:5432/topic-recommendations'
 
 from topic_recommendations.api.main import app
 
