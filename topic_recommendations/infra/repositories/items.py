@@ -10,11 +10,17 @@ class ItemsRepository(IItemsRepository):
     @staticmethod
     def _get_by_id(item_id: int):
         return session.scalars(
-            select(ItemModel).filter_by(id=item_id).limit(1)
+            select(ItemModel)
+            .where(ItemModel.id == item_id)
+            .limit(1)
         ).one()
 
-    def create(self, user_id: int, topic_id: int, content: str):
-        session.add(ItemModel(user_id=user_id, topic_id=topic_id, content=content))
+    def create(self, topic_id: int,  user_id: int, content: str):
+        session.add(
+            ItemModel(topic_id=topic_id,
+                      user_id=user_id,
+                      content=content)
+        )
         session.commit()
 
     def get(self, item_id: int) -> Item:
@@ -26,8 +32,10 @@ class ItemsRepository(IItemsRepository):
         session.delete(item)
         session.commit()
 
-    def list(self, limit: int = 100) -> list[Item]:
+    def list(self, topic_id: int, limit: int = 100) -> list[Item]:
         item_list = session.scalars(
-            select(ItemModel).limit(limit)
+            select(ItemModel)
+            .where(ItemModel.topic_id == topic_id)
+            .limit(limit)
         ).all()
         return [Item(**item.mappings().all()) for item in item_list]

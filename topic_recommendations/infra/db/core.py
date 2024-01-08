@@ -3,6 +3,7 @@ import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
+from sqlalchemy_utils import database_exists, create_database
 
 from topic_recommendations import config
 
@@ -20,5 +21,14 @@ logger = logging.getLogger(__name__)
 
 def init_db():
     logger.info('Initializing database')
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    else:
+        engine.connect()
+
     Model.metadata.create_all(engine)
 
+
+def shutdown_db():
+    logger.info('Shutting down database connection')
+    engine.dispose()

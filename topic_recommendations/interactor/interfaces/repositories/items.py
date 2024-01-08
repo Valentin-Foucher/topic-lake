@@ -6,11 +6,11 @@ from topic_recommendations.interactor.interfaces.base import Repository
 
 class IItemsRepository(Repository, ABC):
     @abstractmethod
-    def list(self, limit: int = 100) -> list[Item]:
+    def list(self, topic_id: int, limit: int = 100) -> list[Item]:
         pass
 
     @abstractmethod
-    def create(self, user_id: int, topic_id: int, content: str):
+    def create(self, topic_id: int, user_id: int, content: str):
         pass
 
     @abstractmethod

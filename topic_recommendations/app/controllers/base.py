@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class Controller(metaclass=ABC):
+class Controller(ABC):
     """
     The controller is a design pattern which aim is to take the input it is given and to convert it into
     the form required by the business.

@@ -9,6 +9,6 @@ class ListItemsController(Controller):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self):
-        return ListItems(self._presenter, self._repository).execute()
+    def execute(self, topic_id: int):
+        return ListItems(self._presenter, self._repository).execute(topic_id)
 

@@ -10,12 +10,15 @@ class TopicsRepository(ITopicsRepository):
     @staticmethod
     def _get_by_id(topic_id: int):
         return session.scalars(
-            select(TopicModel).filter_by(id=topic_id).limit(1)
+            select(TopicModel)
+            .where(TopicModel.id == topic_id)
+            .limit(1)
         ).one()
 
     def list(self, limit: int = 100) -> list[Topic]:
         topic_list = session.scalars(
-            select(TopicModel).limit(limit)
+            select(TopicModel)
+            .limit(limit)
         ).all()
 
         return [Topic(**topic.mappings().all()) for topic in topic_list]

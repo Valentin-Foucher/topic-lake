@@ -7,7 +7,7 @@ from topic_recommendations.interactor.interfaces.base import Repository
 
 class IUsersRepository(Repository, ABC):
     @abstractmethod
-    def create(self, name: str, hashed_password: str):
+    def create(self, name: str, hashed_password: str) -> int:
         pass
 
     @abstractmethod

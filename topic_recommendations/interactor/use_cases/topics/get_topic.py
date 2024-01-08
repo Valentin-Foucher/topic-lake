@@ -1,10 +1,10 @@
-from topic_recommendations.app.presenters.topics import GetTopicPresenter
+from topic_recommendations.interactor.interfaces.base import Presenter
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_recommendations.interactor.use_cases.base import UseCase
 
 
 class GetTopic(UseCase):
-    def __init__(self, presenter: GetTopicPresenter, repository: ITopicsRepository):
+    def __init__(self, presenter: Presenter, repository: ITopicsRepository):
         self._presenter = presenter
         self._repository = repository
 

@@ -7,6 +7,6 @@ class CreateItemController(Controller):
     def __init__(self, repository: IItemsRepository):
         self._repository = repository
 
-    def execute(self, user_id: int, topic_id: int, content: str):
-        CreateItem(self._repository).execute(user_id, topic_id, content)
+    def execute(self, topic_id: int, user_id: int, content: str):
+        CreateItem(self._repository).execute(topic_id, user_id, content)
 

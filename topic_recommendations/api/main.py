@@ -6,7 +6,6 @@ from starlette.middleware.cors import CORSMiddleware
 from topic_recommendations.api.utils.app_utils import add_error_handlers, add_routers, lifespan
 from topic_recommendations.config import load_config
 
-"""Definition of the API"""
 
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(

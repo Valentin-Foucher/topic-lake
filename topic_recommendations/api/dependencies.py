@@ -1,6 +1,6 @@
 from topic_recommendations.app.presenters.items import GetItemPresenter, ListItemsPresenter
 from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter
-from topic_recommendations.app.presenters.users import GetUserPresenter
+from topic_recommendations.app.presenters.users import GetUserPresenter, CreateUserPresenter
 from topic_recommendations.exceptions import InternalException
 from topic_recommendations.infra.repositories.items import ItemsRepository
 from topic_recommendations.infra.repositories.topics import TopicsRepository
@@ -43,6 +43,8 @@ def get_presenter(view_name: str, action: str) -> Presenter:
             match action:
                 case 'get':
                     return GetUserPresenter()
+                case 'create':
+                    return CreateUserPresenter()
         case _:
             raise InternalException(f'Unknown collection name {view_name}')
 

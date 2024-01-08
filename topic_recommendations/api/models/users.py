@@ -1,9 +1,13 @@
 from pydantic import BaseModel
 
 
-class CreateUserModel(BaseModel):
+class CreateUserRequest(BaseModel):
     name: str
     password: str
+
+
+class CreateUserResponse(BaseModel):
+    id: int
 
 
 class User(BaseModel):
@@ -11,5 +15,7 @@ class User(BaseModel):
     name: str
 
 
-class GetUser(BaseModel):
+class GetUserResponse(BaseModel):
     user: User
+
+
