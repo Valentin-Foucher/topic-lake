@@ -17,6 +17,7 @@ pyaml-env = "^1.2.1"
 psycopg2-binary = "^2.9.9"
 httpx = "^0.26.0"
 asgi-lifespan = "^2.1.0"
+pytest = "^7.4.4"
 
 
 [build-system]
