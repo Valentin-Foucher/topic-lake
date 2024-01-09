@@ -25,7 +25,7 @@ class TopicsRepository(ITopicsRepository):
             .limit(limit)
         ).all()
 
-        return [Topic(**topic.mappings().all()) for topic in topic_list]
+        return [topic.as_dataclass(Topic) for topic in topic_list]
 
     def create(self, user_id: int, content: str) -> int:
         t = TopicModel(user_id=user_id, content=content)

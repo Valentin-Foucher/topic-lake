@@ -73,3 +73,17 @@ class TopicsTestCase(HttpTestCase):
 
         response = await self.get('/topics/1')
         self.assertEqual(404, response.status_code)
+
+    async def test_list_topics(self):
+        response = await self.get('/topics')
+        self.assertEqual(0, len(self.get_data_from_response(response, 'topics')))
+
+        response = await self._create_topic()
+        self.assertEqual(201, response.status_code)
+        response = await self.get('/topics')
+        self.assertEqual(1, len(self.get_data_from_response(response, 'topics')))
+
+        response = await self._create_topic()
+        self.assertEqual(201, response.status_code)
+        response = await self.get('/topics')
+        self.assertEqual(2, len(self.get_data_from_response(response, 'topics')))
