@@ -38,7 +38,11 @@ class TopicsRepository(ITopicsRepository):
         topic = self._get_by_id(topic_id)
         return topic.as_dataclass(Topic) if topic else None
 
-    def delete(self, topic_id: int):
+    def delete(self, topic_id: int) -> bool:
         topic = self._get_by_id(topic_id)
+        if not topic:
+            return False
+
         session.delete(topic)
         session.commit()
+        return True

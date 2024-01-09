@@ -60,3 +60,16 @@ class TopicsTestCase(HttpTestCase):
         response = await self.get(f'/topics/{inserted_it}')
         self.assertEqual(200, response.status_code)
         self._assert_topic(self.get_data_from_response(response, 'topic'))
+
+    async def test_delete_topic(self):
+        response = await self.delete('/topics/1')
+        self.assertEqual(404, response.status_code)
+        self.assertEqual('Topic 1 does not exist', self.get_data_from_response(response, 'detail'))
+
+        response = await self._create_topic()
+        inserted_it = self.get_data_from_response(response, 'id')
+        response = await self.delete(f'/topics/{inserted_it}')
+        self.assertEqual(204, response.status_code)
+
+        response = await self.get('/topics/1')
+        self.assertEqual(404, response.status_code)

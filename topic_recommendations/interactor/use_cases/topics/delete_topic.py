@@ -1,3 +1,4 @@
+from topic_recommendations.interactor.exceptions import DoesNotExist
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_recommendations.interactor.use_cases.base import UseCase
 
@@ -7,4 +8,6 @@ class DeleteTopic(UseCase):
         self._repository = repository
 
     def execute(self, topic_id: int):
-        self._repository.delete(topic_id)
+        result = self._repository.delete(topic_id)
+        if not result:
+            raise DoesNotExist(f'Topic {topic_id} does not exist')
