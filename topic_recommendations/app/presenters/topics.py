@@ -12,3 +12,9 @@ class ListTopicsPresenter(Presenter):
 class GetTopicPresenter(Presenter):
     def present(self, topic: Topic):
         return {'topic': dataclasses.asdict(topic)}
+
+
+class CreateTopicPresenter(Presenter):
+    def present(self, inserted_id: int):
+        return {'id': inserted_id}
+

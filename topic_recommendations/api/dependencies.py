@@ -1,51 +1,33 @@
+from typing import Annotated
+
+from fastapi import Depends
+
 from topic_recommendations.app.presenters.items import GetItemPresenter, ListItemsPresenter
-from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter
+from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
 from topic_recommendations.app.presenters.users import GetUserPresenter, CreateUserPresenter
 from topic_recommendations.exceptions import InternalException
 from topic_recommendations.infra.repositories.items import ItemsRepository
 from topic_recommendations.infra.repositories.topics import TopicsRepository
 from topic_recommendations.infra.repositories.users import UsersRepository
 from topic_recommendations.interactor.interfaces.base import Repository, Presenter
-
-"""
-As described here https://fastapi.tiangolo.com/tutorial/dependencies/, routers dependency injection should be defined
-in a dedicated module. By convention, injector functions will be defined as get_<resource_type> 
-"""
+from topic_recommendations.interactor.interfaces.repositories.items import IItemsRepository
+from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
+from topic_recommendations.interactor.interfaces.repositories.users import IUsersRepository
 
 
-def get_repository(repository_name: str) -> Repository:
-    match repository_name:
-        case 'items':
-            return ItemsRepository()
-        case 'topics':
-            return TopicsRepository()
-        case 'users':
-            return UsersRepository()
-        case _:
-            raise InternalException(f'Unknown collection name {repository_name}')
+# Repositories
+UsersRepositoryDependency = Annotated[IUsersRepository, Depends(UsersRepository)]
+TopicsRepositoryDependency = Annotated[ITopicsRepository, Depends(TopicsRepository)]
+ItemsRepositoryDependency = Annotated[IItemsRepository, Depends(ItemsRepository)]
 
 
-def get_presenter(view_name: str, action: str) -> Presenter:
-    match view_name:
-        case 'items':
-            match action:
-                case 'list':
-                    return ListItemsPresenter()
-                case 'get':
-                    return GetItemPresenter()
-        case 'topics':
-            match action:
-                case 'list':
-                    return ListTopicsPresenter()
-                case 'get':
-                    return GetTopicPresenter()
-        case 'users':
-            match action:
-                case 'get':
-                    return GetUserPresenter()
-                case 'create':
-                    return CreateUserPresenter()
-        case _:
-            raise InternalException(f'Unknown collection name {view_name}')
+# Presenters
+GetUserPresenterDependency = Annotated[GetUserPresenter, Depends(GetUserPresenter)]
+CreateUserPresenterDependency = Annotated[CreateUserPresenter, Depends(CreateUserPresenter)]
 
-    raise InternalException(f'Unknown action name for view {view_name}: {action}')
+ListTopicsPresenterDependency = Annotated[ListTopicsPresenter, Depends(ListTopicsPresenter)]
+GetTopicPresenterDependency = Annotated[GetTopicPresenter, Depends(GetTopicPresenter)]
+CreateTopicPresenterDependency = Annotated[CreateUserPresenter, Depends(CreateTopicPresenter)]
+
+ListItemsPresenterDependency = Annotated[ListItemsPresenter, Depends(ListItemsPresenter)]
+GetItemPresenterDependency = Annotated[GetItemPresenter, Depends(GetItemPresenter)]

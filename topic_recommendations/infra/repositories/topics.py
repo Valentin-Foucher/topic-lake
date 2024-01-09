@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 
 from topic_recommendations.domain.entities.topics import Topic
 from topic_recommendations.infra.db.core import session
@@ -9,11 +10,14 @@ from topic_recommendations.interactor.interfaces.repositories.topics import ITop
 class TopicsRepository(ITopicsRepository):
     @staticmethod
     def _get_by_id(topic_id: int):
-        return session.scalars(
-            select(TopicModel)
-            .where(TopicModel.id == topic_id)
-            .limit(1)
-        ).one()
+        try:
+            return session.scalars(
+                select(TopicModel)
+                .where(TopicModel.id == topic_id)
+                .limit(1)
+            ).one()
+        except NoResultFound:
+            return None
 
     def list(self, limit: int = 100) -> list[Topic]:
         topic_list = session.scalars(
@@ -23,13 +27,16 @@ class TopicsRepository(ITopicsRepository):
 
         return [Topic(**topic.mappings().all()) for topic in topic_list]
 
-    def create(self, user_id: int, content: str):
-        session.add(TopicModel(user_id=user_id, content=content))
+    def create(self, user_id: int, content: str) -> int:
+        t = TopicModel(user_id=user_id, content=content)
+        session.add(t)
+        session.flush()
         session.commit()
+        return t.id
 
     def get(self, topic_id: int) -> Topic:
         topic = self._get_by_id(topic_id)
-        return Topic(**topic.mappings().all())
+        return topic.as_dataclass(Topic) if topic else None
 
     def delete(self, topic_id: int):
         topic = self._get_by_id(topic_id)
