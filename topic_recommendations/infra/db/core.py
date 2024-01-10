@@ -1,5 +1,6 @@
 import inspect
 import logging
+from typing import Type, TypeVar
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
@@ -12,9 +13,43 @@ engine = create_engine(config.get('postgres.connection_string'))
 session = scoped_session(sessionmaker(bind=engine))
 
 Model = declarative_base(name='Model')
+TModel = TypeVar("TVehicle", bound=Model)
+
 Model.query = session.query_property()
-Model.as_dataclass = lambda s, clz: clz(**{c.name: getattr(s, c.name) for c in s.__table__.columns
-                                           if c.name in inspect.signature(clz).parameters})
+#Model.as_dataclass = lambda s, clz: clz(**{c.name: getattr(s, c.name) for c in s.__table__.columns
+#                                           if c.name in inspect.signature(clz).parameters})
+
+
+def as_dataclass(model: Model, clz: Type[TModel]):
+    dataclass_kwargs = {}
+    dataclass_attributes = inspect.signature(clz).parameters
+    previously_looked_up_models = []
+
+    def flatten_model(sub_model: Model, prefix: str = ''):
+        nonlocal dataclass_kwargs, dataclass_attributes, previously_looked_up_models
+
+        for c in sub_model.__table__.columns:
+            complete_name = prefix + c.name
+            if complete_name in dataclass_attributes:
+                dataclass_kwargs[complete_name] = getattr(sub_model, c.name)
+
+        for m in sub_model.__mapper__.relationships:
+            if m.key in previously_looked_up_models:
+                continue
+
+            previously_looked_up_models.append(m.key)
+            prefix = f'{m.argument.lower()}_'
+            if any(p.startswith(prefix) for p in dataclass_attributes):
+                flatten_model(
+                    getattr(sub_model, m.key),
+                    prefix=prefix
+                )
+
+    flatten_model(model)
+    return clz(**dataclass_kwargs)
+
+
+Model.as_dataclass = as_dataclass
 
 logger = logging.getLogger(__name__)
 

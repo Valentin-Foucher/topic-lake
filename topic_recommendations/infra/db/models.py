@@ -11,8 +11,8 @@ class User(Model):
     name = Column('name', String, nullable=False)
     password = Column('password', String, nullable=False)
 
-    topic_creations: Mapped['Topic'] = relationship(back_populates='created_by', cascade='all, delete-orphan')
-    item_creations: Mapped['Item'] = relationship(back_populates='created_by', cascade='all, delete-orphan')
+    topic_creations: Mapped['Topic'] = relationship(back_populates='user', cascade='all, delete-orphan')
+    item_creations: Mapped['Item'] = relationship(back_populates='user', cascade='all, delete-orphan')
 
 
 class Topic(Model):
@@ -22,8 +22,8 @@ class Topic(Model):
     content = Column('content', String, nullable=False)
     user_id = mapped_column(ForeignKey('users.id'))
 
-    created_by: Mapped['User'] = relationship(back_populates='topic_creations')
-    item_creations: Mapped['Item'] = relationship(back_populates='related_topic', cascade='all, delete-orphan')
+    user: Mapped['User'] = relationship(back_populates='topic_creations')
+    item_creations: Mapped['Item'] = relationship(back_populates='topic', cascade='all, delete-orphan')
 
 
 class Item(Model):
@@ -34,5 +34,5 @@ class Item(Model):
     user_id = mapped_column(ForeignKey('users.id'))
     topic_id = mapped_column(ForeignKey('topics.id'))
 
-    created_by: Mapped['User'] = relationship(back_populates='item_creations')
-    related_topic: Mapped['Topic'] = relationship(back_populates='item_creations')
+    user: Mapped['User'] = relationship(back_populates='item_creations')
+    topic: Mapped['Topic'] = relationship(back_populates='item_creations')

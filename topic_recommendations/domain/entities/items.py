@@ -5,5 +5,5 @@ from dataclasses import dataclass
 class Item:
     id: int
     content: str
-    topic: str
+    topic_content: str
     user_name: str

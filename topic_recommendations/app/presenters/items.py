@@ -1,4 +1,5 @@
 import dataclasses
+from typing import Any
 
 from topic_recommendations.domain.entities.items import Item
 from topic_recommendations.interactor.interfaces.base import Presenter
@@ -12,3 +13,8 @@ class ListItemsPresenter(Presenter):
 class GetItemPresenter(Presenter):
     def present(self, item: Item):
         return {'item': dataclasses.asdict(item)}
+
+
+class CreateItemPresenter(Presenter):
+    def present(self, inserted_id: int):
+        return {'id': inserted_id}

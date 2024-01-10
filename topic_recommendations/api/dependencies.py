@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from topic_recommendations.app.presenters.items import GetItemPresenter, ListItemsPresenter
+from topic_recommendations.app.presenters.items import GetItemPresenter, ListItemsPresenter, CreateItemPresenter
 from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
 from topic_recommendations.app.presenters.users import GetUserPresenter, CreateUserPresenter
 from topic_recommendations.exceptions import InternalException
@@ -31,3 +31,4 @@ CreateTopicPresenterDependency = Annotated[CreateUserPresenter, Depends(CreateTo
 
 ListItemsPresenterDependency = Annotated[ListItemsPresenter, Depends(ListItemsPresenter)]
 GetItemPresenterDependency = Annotated[GetItemPresenter, Depends(GetItemPresenter)]
+CreateItemPresenterDependency = Annotated[CreateItemPresenter, Depends(CreateItemPresenter)]

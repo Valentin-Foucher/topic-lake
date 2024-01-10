@@ -1,21 +1,21 @@
 from pydantic import BaseModel
 
 
-class CreateItemModel(BaseModel):
+class Item(BaseModel):
+    id: int
+    content: str
+    topic_content: str
+    user_name: str
+
+
+class CreateItemRequest(BaseModel):
     content: str
     user_id: int
 
 
-class Item(BaseModel):
-    id: int
-    content: str
-    topic: str
-    user_name: str
-
-
-class GetItem(BaseModel):
+class GetItemResponse(BaseModel):
     item: Item
 
 
-class ListItems(BaseModel):
+class ListItemsResponse(BaseModel):
     items: list[Item]
