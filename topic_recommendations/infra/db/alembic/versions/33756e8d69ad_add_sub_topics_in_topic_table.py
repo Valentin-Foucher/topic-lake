@@ -1,8 +1,8 @@
-"""generate tables
+"""add sub topics in Topic table
 
-Revision ID: 40843f42b6a3
-Revises: 
-Create Date: 2024-01-11 15:28:34.313246
+Revision ID: 33756e8d69ad
+Revises: 40843f42b6a3
+Create Date: 2024-01-11 16:45:28.798021
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '40843f42b6a3'
-down_revision: Union[str, None] = None
+revision: str = '33756e8d69ad'
+down_revision: Union[str, None] = '40843f42b6a3'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -30,6 +30,8 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('content', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['parent_id'], ['topics.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
