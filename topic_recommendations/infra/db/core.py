@@ -13,11 +13,9 @@ engine = create_engine(config.get('postgres.connection_string'))
 session = scoped_session(sessionmaker(bind=engine))
 
 Model = declarative_base(name='Model')
-TModel = TypeVar("TVehicle", bound=Model)
+TModel = TypeVar("TModel", bound=Model)
 
 Model.query = session.query_property()
-#Model.as_dataclass = lambda s, clz: clz(**{c.name: getattr(s, c.name) for c in s.__table__.columns
-#                                           if c.name in inspect.signature(clz).parameters})
 
 
 def as_dataclass(model: Model, clz: Type[TModel]):
