@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from topic_recommendations.api.tests.base import HttpTestCase
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import Item, Topic
@@ -14,11 +16,10 @@ class ItemsTestCase(HttpTestCase):
         await super().asyncSetUp()
         Item.query.delete()
 
-    async def _create_item(self, status_code=201, error_message='', **overriding_dict):
-        response = await self.post('/topics/1/items', {
+    async def _create_item(self, status_code=201, error_message='', topic_id=1, **overriding_dict):
+        response = await self.post(f'/topics/{topic_id}/items', {
             'content': 'Ibiza',
             'user_id': 1,
-            'topic_id': 1,
             **overriding_dict
         })
 
@@ -96,3 +97,24 @@ class ItemsTestCase(HttpTestCase):
         self.assertEqual(201, response.status_code)
         response = await self.get('/topics/1/items')
         self.assertEqual(2, len(self.get_data_from_response(response, 'items')))
+
+    async def test_delete_topic_should_delete_item(self):
+        test_topic = Topic(content='deleted_topic', user_id=1)
+        session.add(test_topic)
+        session.commit()
+        session.commit()
+        session.flush()
+
+        response = await self._create_item(topic_id=test_topic.id)
+        self.assertEqual(201, response.status_code)
+        item_id = self.get_data_from_response(response, 'id')
+
+        response = await self.delete(f'/topics/{test_topic.id}')
+        self.assertEqual(204, response.status_code)
+
+        item_query = session.scalars(
+            select(Item)
+            .where(Item.id == item_id)
+            .limit(1)
+        )
+        self.assertEqual(0, len(item_query.all()))
