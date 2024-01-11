@@ -87,3 +87,43 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(201, response.status_code)
         response = await self.get('/topics')
         self.assertEqual(2, len(self.get_data_from_response(response, 'topics')))
+
+    async def test_create_sub_topic(self):
+        """
+        structure:
+        parent:
+            first child:
+                first great child
+            second child
+        """
+        response = await self._create_topic()
+        self.assertEqual(201, response.status_code)
+        parent_id = self.get_data_from_response(response, 'id')
+        
+        response = await self._create_topic(parent_topic_id=parent_id)
+        self.assertEqual(201, response.status_code)
+        first_child_id = self.get_data_from_response(response, 'id')
+
+        response = await self._create_topic(parent_topic_id=parent_id)
+        self.assertEqual(201, response.status_code)
+        second_child_id = self.get_data_from_response(response, 'id')
+
+        response = await self._create_topic(parent_topic_id=first_child_id)
+        self.assertEqual(201, response.status_code)
+        first_great_child_id = self.get_data_from_response(response, 'id')
+
+        response = await self.get(f'/topics/{parent_id}')
+        self.assertEqual(200, response.status_code)
+        self.assertIsNone(self.get_data_from_response(response, 'topic.parent_topic_id'))
+
+        response = await self.get(f'/topics/{first_child_id}')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(parent_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
+
+        response = await self.get(f'/topics/{second_child_id}')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(parent_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
+
+        response = await self.get(f'/topics/{first_great_child_id}')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(first_child_id, self.get_data_from_response(response, 'topic.parent_topic_id'))

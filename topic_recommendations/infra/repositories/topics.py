@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
@@ -27,8 +29,8 @@ class TopicsRepository(ITopicsRepository):
 
         return [topic.as_dataclass(Topic) for topic in topic_list]
 
-    def create(self, user_id: int, content: str) -> int:
-        t = TopicModel(user_id=user_id, content=content)
+    def create(self, user_id: int, parent_topic_id: Optional[int], content: str) -> int:
+        t = TopicModel(user_id=user_id, parent_topic_id=parent_topic_id, content=content)
         session.add(t)
         session.flush()
         session.commit()

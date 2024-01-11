@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from topic_recommendations.domain.entities.topics import Topic
 from topic_recommendations.interactor.interfaces.base import Repository
@@ -10,7 +11,7 @@ class ITopicsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def create(self, user_id: int, content: str):
+    def create(self, user_id: int, parent_topic_id: Optional[int], content: str):
         pass
 
     @abstractmethod

@@ -27,6 +27,7 @@ async def create_topic(topic: CreateTopicRequest, presenter: CreateTopicPresente
                        users_repository: UsersRepositoryDependency):
     return CreateTopicController(presenter, topics_repository, users_repository).execute(
         topic.user_id,
+        topic.parent_topic_id,
         topic.content
     )
 
