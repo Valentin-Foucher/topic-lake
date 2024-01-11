@@ -26,6 +26,9 @@ def as_dataclass(model: Model, clz: Type[TModel]):
     def flatten_model(sub_model: Model, prefix: str = ''):
         nonlocal dataclass_kwargs, dataclass_attributes, previously_looked_up_models
 
+        if sub_model is None or isinstance(sub_model, list):
+            return
+
         for c in sub_model.__table__.columns:
             complete_name = prefix + c.name
             if complete_name in dataclass_attributes:

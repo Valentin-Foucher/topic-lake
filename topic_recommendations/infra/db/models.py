@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Integer, ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import relationship, mapped_column
 
 from topic_recommendations.infra.db.core import Model
 
@@ -11,8 +11,8 @@ class User(Model):
     name = Column('name', String, nullable=False)
     password = Column('password', String, nullable=False)
 
-    topic_creations: Mapped['Topic'] = relationship(back_populates='user', cascade='all, delete-orphan')
-    item_creations: Mapped['Item'] = relationship(back_populates='user', cascade='all, delete-orphan')
+    topic_creations = relationship('Topic', back_populates='user', cascade='all, delete-orphan')
+    item_creations = relationship('Item', back_populates='user', cascade='all, delete-orphan')
 
 
 class Topic(Model):
@@ -21,9 +21,12 @@ class Topic(Model):
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     content = Column('content', String, nullable=False)
     user_id = mapped_column(ForeignKey('users.id'))
+    parent_id = mapped_column(ForeignKey('topics.id'))
 
-    user: Mapped['User'] = relationship(back_populates='topic_creations')
-    item_creations: Mapped['Item'] = relationship(back_populates='topic', cascade='all, delete-orphan')
+    sub_topics = relationship('Topic', back_populates='parent_topic')
+    parent_topic = relationship('Topic', remote_side=[id], back_populates='sub_topics')
+    user = relationship('User', back_populates='topic_creations')
+    item_creations = relationship('Item', back_populates='topic', cascade='all, delete-orphan')
 
 
 class Item(Model):
@@ -34,5 +37,5 @@ class Item(Model):
     user_id = mapped_column(ForeignKey('users.id'))
     topic_id = mapped_column(ForeignKey('topics.id'))
 
-    user: Mapped['User'] = relationship(back_populates='item_creations')
-    topic: Mapped['Topic'] = relationship(back_populates='item_creations')
+    user = relationship('User', back_populates='item_creations')
+    topic = relationship('Topic', back_populates='item_creations')
