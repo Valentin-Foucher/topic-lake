@@ -6,6 +6,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
+from topic_recommendations import config as project_config
 from topic_recommendations.infra.db.models import Model
 
 # this is the Alembic Config object, which provides
@@ -18,7 +19,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 
-sqlalchemy_url = os.environ['POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING']
+sqlalchemy_url = project_config.get('postgres.connection_string')
 config.set_main_option('sqlalchemy.url', sqlalchemy_url)
 
 target_metadata = Model.metadata
