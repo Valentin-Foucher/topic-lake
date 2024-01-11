@@ -45,6 +45,11 @@ class TopicsTestCase(HttpTestCase):
                                  status_code=404,
                                  error_message='User 13 does not exist')
 
+    async def test_create_topic_with_invalid_parent_id(self):
+        await self._create_topic(parent_topic_id=123,
+                                 status_code=404,
+                                 error_message='Topic 123 does not exist')
+
     async def test_create_topic(self):
         await self._create_topic()
 
