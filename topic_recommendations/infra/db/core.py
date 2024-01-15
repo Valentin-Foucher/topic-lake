@@ -20,46 +20,35 @@ TModel = TypeVar("TModel", bound=Model)
 Model.query = session.query_property()
 
 
-def as_dataclass(model: Model | list[Model]):
-    previously_looked_up_models = []
+def as_dataclass(model_: Model | list[Model]):
+    if isinstance(model_, list):
+        return [as_dataclass(sub) for sub in model_]
 
-    def as_dataclass_(model_: Model | list[Model]):
-        nonlocal previously_looked_up_models
+    clz = get_object_by_name(f'topic_recommendations.domain.entities.{model_.__class__.__name__}')
+    dataclass_attributes = inspect.signature(clz).parameters
+    kwargs = {}
 
-        if isinstance(model_, list):
-            return [as_dataclass_(sub) for sub in model_]
+    for c in model_.__table__.columns:
+        if c.name in dataclass_attributes:
+            kwargs[c.name] = getattr(model_, c.name)
 
-        previously_looked_up_models.append(str(model_.__class__))
-        clz = get_object_by_name(f'topic_recommendations.domain.entities.{model_.__class__.__name__}')
-        dataclass_attributes = inspect.signature(clz).parameters
-        kwargs = {}
+    for m in model_.__mapper__.relationships:
+        sub_model_value = getattr(model_, m.key)
+        if not sub_model_value:
+            continue
 
-        for c in model_.__table__.columns:
-            if c.name in dataclass_attributes:
-                kwargs[c.name] = getattr(model_, c.name)
+        # storing nesting object attribute as nested dataclass
+        if any(p == m.key and sub_model_value for p in dataclass_attributes):
+            kwargs[m.key] = as_dataclass(sub_model_value)
 
-        for m in model_.__mapper__.relationships:
-            if m.argument in previously_looked_up_models:
-                continue
+        # storing nesting object attribute as simple parent attribute
+        else:
+            prefix = f'{m.key}_'
+            for complete_name in dataclass_attributes:
+                if complete_name.startswith(prefix) and complete_name in dataclass_attributes:
+                    kwargs[complete_name] = getattr(sub_model_value, re.sub(prefix, '', complete_name))
 
-            sub_model_value = getattr(model_, m.key)
-            if not sub_model_value:
-                continue
-
-            # storing nesting object attribute as nested dataclass
-            if any(p == m.key and sub_model_value for p in dataclass_attributes):
-                kwargs[m.key] = as_dataclass_(sub_model_value)
-
-            # storing nesting object attribute as simple parent attribute
-            else:
-                prefix = f'{m.key}_'
-                for complete_name in dataclass_attributes:
-                    if complete_name.startswith(prefix) and complete_name in dataclass_attributes:
-                        kwargs[complete_name] = getattr(sub_model_value, re.sub(prefix, '', complete_name))
-
-        return clz(**kwargs)
-
-    return as_dataclass_(model)
+    return clz(**kwargs)
 
 
 Model.as_dataclass = as_dataclass
