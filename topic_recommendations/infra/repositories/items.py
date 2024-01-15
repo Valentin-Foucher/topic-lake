@@ -25,7 +25,7 @@ class ItemsRepository(IItemsRepository):
             .where(ItemModel.topic_id == topic_id)
             .limit(limit)
         ).all()
-        return [item.as_dataclass(Item) for item in item_list]
+        return [item.as_dataclass() for item in item_list]
 
     def create(self, topic_id: int,  user_id: int, content: str):
         i = ItemModel(topic_id=topic_id,
@@ -38,7 +38,7 @@ class ItemsRepository(IItemsRepository):
 
     def get(self, item_id: int) -> Item:
         item = self._get_by_id(item_id)
-        return item.as_dataclass(Item) if item else None
+        return item.as_dataclass() if item else None
 
     def delete(self, item_id: int) -> bool:
         item = self._get_by_id(item_id)

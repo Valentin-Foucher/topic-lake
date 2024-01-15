@@ -1,5 +1,4 @@
 import dataclasses
-from typing import Any
 
 from topic_recommendations.domain.entities.items import Item
 from topic_recommendations.interactor.interfaces.base import Presenter

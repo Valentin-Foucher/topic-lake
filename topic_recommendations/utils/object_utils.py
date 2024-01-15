@@ -1,5 +1,6 @@
 import copy
-from typing import Any
+import importlib
+from typing import Any, Type
 
 from frozendict import frozendict
 
@@ -55,3 +56,9 @@ def get_nested_element(o: dict[str, Any] | list[Any], path: str) -> Any:
         v = tuple(v)
 
     return v
+
+
+def get_object_by_name(name: str) -> Type:
+    module_name, object_name = name.rsplit('.', 1)
+    module = importlib.import_module(module_name)
+    return getattr(module, object_name)

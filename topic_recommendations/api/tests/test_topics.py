@@ -1,3 +1,4 @@
+
 from topic_recommendations.api.tests.base import HttpTestCase
 from topic_recommendations.infra.db.models import Topic
 

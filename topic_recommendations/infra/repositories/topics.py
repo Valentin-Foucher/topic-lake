@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from sqlalchemy import select
+from sqlalchemy import select, null
 from sqlalchemy.exc import NoResultFound
 
 from topic_recommendations.domain.entities.topics import Topic
@@ -27,7 +27,7 @@ class TopicsRepository(ITopicsRepository):
             .limit(limit)
         ).all()
 
-        return [topic.as_dataclass(Topic) for topic in topic_list]
+        return [topic.as_dataclass() for topic in topic_list]
 
     def create(self, user_id: int, parent_topic_id: Optional[int], content: str) -> int:
         t = TopicModel(user_id=user_id, parent_topic_id=parent_topic_id, content=content)
@@ -38,7 +38,7 @@ class TopicsRepository(ITopicsRepository):
 
     def get(self, topic_id: int) -> Topic:
         topic = self._get_by_id(topic_id)
-        return topic.as_dataclass(Topic) if topic else None
+        return topic.as_dataclass() if topic else None
 
     def delete(self, topic_id: int) -> bool:
         topic = self._get_by_id(topic_id)
@@ -48,3 +48,15 @@ class TopicsRepository(ITopicsRepository):
         session.delete(topic)
         session.commit()
         return True
+
+    def list_as_treeviews(self) -> List[int]:
+        root_ancestors_id = session.query(TopicModel.id) \
+            .filter(TopicModel.parent_topic_id == null(),
+                    ) \
+            .cte(name='ancestors_id', recursive=True)
+
+        ancestors_id = session \
+            .query(TopicModel.id) \
+            .filter(TopicModel.parent_topic_id == root_ancestors_id.c.id)
+
+        return [result[0] for result in ancestors_id.all()]

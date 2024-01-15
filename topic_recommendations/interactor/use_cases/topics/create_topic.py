@@ -17,8 +17,9 @@ class CreateTopic(UseCase):
         if not self._users_repository.get(user_id):
             raise DoesNotExist(f'User {user_id} does not exist')
         
-        if parent_topic_id and not self._topics_repository.get(parent_topic_id):
-            raise DoesNotExist(f'Topic {parent_topic_id} does not exist')
+        if parent_topic_id:
+            if not self._topics_repository.get(parent_topic_id):
+                raise DoesNotExist(f'Topic {parent_topic_id} does not exist')
 
         inserted_id = self._topics_repository.create(user_id, parent_topic_id, content)
         return self._presenter.present(inserted_id)
