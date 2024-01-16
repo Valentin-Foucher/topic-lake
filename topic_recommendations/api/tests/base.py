@@ -50,16 +50,6 @@ class HttpTestCase(IsolatedAsyncioTestCase):
             return await self._client.put(url, json=data, **kwargs)
 
     @staticmethod
-    def _clear_db():
-        session.commit()
-        Model.metadata.drop_all(engine)
-
-    @staticmethod
-    def _create_test_user(name='test_user', password='password123'):
-        session.add(User(name=name, password=password))
-        session.commit()
-
-    @staticmethod
     def get_data_from_response(response: Response, path: str):
         return get_nested_element(response.json(), path)
 
@@ -69,3 +59,13 @@ class HttpTestCase(IsolatedAsyncioTestCase):
             message, value = error_messages_and_input_for_fields.pop(err['field'])
             self.assertEqual(err['value'], value)
             self.assertEqual(err['message'], message)
+
+    @staticmethod
+    def _clear_db():
+        session.commit()
+        Model.metadata.drop_all(engine)
+
+    @staticmethod
+    def _create_test_user(name='test_user', password='password123'):
+        session.add(User(name=name, password=password))
+        session.commit()

@@ -133,9 +133,3 @@ class TopicsTestCase(HttpTestCase):
         response = await self.get(f'/topics/{first_great_child_id}')
         self.assertEqual(200, response.status_code)
         self.assertEqual(first_child_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
-
-
-        response = await self.get(f'/topics')
-        response_json = response.json()
-        print(response_json)
-

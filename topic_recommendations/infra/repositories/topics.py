@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 
 from sqlalchemy import select, null, literal
 from sqlalchemy.exc import NoResultFound
@@ -11,24 +11,16 @@ from topic_recommendations.interactor.interfaces.repositories.topics import ITop
 
 
 class TopicsRepository(ITopicsRepository):
-    @staticmethod
-    def _get_by_id(topic_id: int):
-        try:
-            return session.scalars(
-                select(TopicModel)
-                .where(TopicModel.id == topic_id)
-                .limit(1)
-            ).one()
-        except NoResultFound:
-            return None
 
-    def list(self, limit: int = 100) -> list[Topic]:
+    @staticmethod
+    def _get_topics_as_treeview(*filters: list[bool], limit: int = 1):
         anchor_member = session.query(TopicModel, literal(0).label('level')) \
-            .filter(TopicModel.parent_topic == null()) \
+            .filter(*filters) \
+            .limit(limit) \
             .cte(name='ancestors_id', recursive=True)
 
-        parent = aliased(anchor_member, name="p")
-        children = aliased(TopicModel, name="c")
+        parent = aliased(anchor_member, name='p')
+        children = aliased(TopicModel, name='c')
 
         recursive_member = anchor_member.union_all(
             session
@@ -36,12 +28,23 @@ class TopicsRepository(ITopicsRepository):
             .filter(children.parent_topic_id == parent.c.id)
         )
 
-        topic_list = session.scalars(
+        return session.scalars(
             select(TopicModel, recursive_member.c.level)
-            .where(TopicModel.id == recursive_member.c.id,
-                   recursive_member.c.level == 0)
+            .where(
+                TopicModel.id == recursive_member.c.id,
+                recursive_member.c.level == 0
+            )
         )
 
+    def _get_by_id(self, topic_id: int) -> Optional[TopicModel]:
+        try:
+            return self._get_topics_as_treeview(TopicModel.id == topic_id) \
+                .one()
+        except NoResultFound:
+            return None
+
+    def list(self, limit: int = 100) -> list[Topic]:
+        topic_list = self._get_topics_as_treeview(TopicModel.parent_topic == null(), limit=limit)
         return [topic.as_dataclass() for topic in topic_list]
 
     def create(self, user_id: int, parent_topic_id: Optional[int], content: str) -> int:
