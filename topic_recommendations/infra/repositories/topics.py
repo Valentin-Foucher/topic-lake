@@ -1,7 +1,8 @@
 from typing import Optional, List
 
-from sqlalchemy import select, null
+from sqlalchemy import select, null, literal
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.orm import aliased
 
 from topic_recommendations.domain.entities.topics import Topic
 from topic_recommendations.infra.db.core import session
@@ -22,10 +23,24 @@ class TopicsRepository(ITopicsRepository):
             return None
 
     def list(self, limit: int = 100) -> list[Topic]:
+        anchor_member = session.query(TopicModel, literal(0).label('level')) \
+            .filter(TopicModel.parent_topic == null()) \
+            .cte(name='ancestors_id', recursive=True)
+
+        parent = aliased(anchor_member, name="p")
+        children = aliased(TopicModel, name="c")
+
+        recursive_member = anchor_member.union_all(
+            session
+            .query(children, (parent.c.level + 1).label('level'))
+            .filter(children.parent_topic_id == parent.c.id)
+        )
+
         topic_list = session.scalars(
-            select(TopicModel)
-            .limit(limit)
-        ).all()
+            select(TopicModel, recursive_member.c.level)
+            .where(TopicModel.id == recursive_member.c.id,
+                   recursive_member.c.level == 0)
+        )
 
         return [topic.as_dataclass() for topic in topic_list]
 
@@ -48,15 +63,3 @@ class TopicsRepository(ITopicsRepository):
         session.delete(topic)
         session.commit()
         return True
-
-    def list_as_treeviews(self) -> List[int]:
-        root_ancestors_id = session.query(TopicModel.id) \
-            .filter(TopicModel.parent_topic_id == null(),
-                    ) \
-            .cte(name='ancestors_id', recursive=True)
-
-        ancestors_id = session \
-            .query(TopicModel.id) \
-            .filter(TopicModel.parent_topic_id == root_ancestors_id.c.id)
-
-        return [result[0] for result in ancestors_id.all()]

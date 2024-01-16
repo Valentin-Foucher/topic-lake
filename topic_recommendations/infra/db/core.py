@@ -20,20 +20,20 @@ TModel = TypeVar("TModel", bound=Model)
 Model.query = session.query_property()
 
 
-def as_dataclass(model_: Model | list[Model]):
-    if isinstance(model_, list):
-        return [as_dataclass(sub) for sub in model_]
+def as_dataclass(model: Model | list[Model]):
+    if isinstance(model, list):
+        return [as_dataclass(sub) for sub in model]
 
-    clz = get_object_by_name(f'topic_recommendations.domain.entities.{model_.__class__.__name__}')
+    clz = get_object_by_name(f'topic_recommendations.domain.entities.{model.__class__.__name__}')
     dataclass_attributes = inspect.signature(clz).parameters
     kwargs = {}
 
-    for c in model_.__table__.columns:
+    for c in model.__table__.columns:
         if c.name in dataclass_attributes:
-            kwargs[c.name] = getattr(model_, c.name)
+            kwargs[c.name] = getattr(model, c.name)
 
-    for m in model_.__mapper__.relationships:
-        sub_model_value = getattr(model_, m.key)
+    for m in model.__mapper__.relationships:
+        sub_model_value = getattr(model, m.key)
         if not sub_model_value:
             continue
 

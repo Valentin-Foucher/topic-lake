@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import Optional
 
 from topic_recommendations.domain.entities.topics import Topic
 from topic_recommendations.interactor.interfaces.base import Repository
@@ -20,8 +20,4 @@ class ITopicsRepository(Repository, ABC):
 
     @abstractmethod
     def delete(self, topic_id: int):
-        pass
-
-    @abstractmethod
-    def list_as_treeviews(self) -> List[Topic]:
         pass
