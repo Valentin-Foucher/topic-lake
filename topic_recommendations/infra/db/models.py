@@ -1,4 +1,6 @@
-from sqlalchemy import Column, String, Integer, ForeignKey
+from datetime import datetime
+
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, mapped_column
 
 from topic_recommendations.infra.db.core import Model
@@ -13,6 +15,7 @@ class User(Model):
 
     topic_creations = relationship('Topic', back_populates='user', cascade='all, delete-orphan')
     item_creations = relationship('Item', back_populates='user', cascade='all, delete-orphan')
+    access_tokens = relationship('AccessToken', back_populates='user', cascade='all, delete-orphan')
 
 
 class Topic(Model):
@@ -39,3 +42,14 @@ class Item(Model):
 
     user = relationship('User', back_populates='item_creations')
     topic = relationship('Topic', back_populates='item_creations')
+
+
+class AccessToken(Model):
+    __tablename__ = 'access_tokens'
+
+    id = Column('id', Integer, autoincrement=True, primary_key=True)
+    value = Column('content', String, nullable=False)
+    creation_date = Column('creation_date', DateTime, default=datetime.utcnow)
+    user_id = mapped_column(ForeignKey('users.id'))
+
+    user = relationship('User', back_populates='access_tokens')
