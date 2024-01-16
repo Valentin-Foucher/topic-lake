@@ -1,4 +1,3 @@
-
 from topic_recommendations.api.tests.base import HttpTestCase
 from topic_recommendations.infra.db.models import Topic
 
@@ -32,6 +31,9 @@ class TopicsTestCase(HttpTestCase):
         self.assertIsInstance(topic['id'], int)
         self.assertEqual('Holiday destinations', topic['content'])
         self.assertEqual(1, topic['user_id'])
+        if topic['parent_topic_id'] is not None:
+            self.assertIsInstance(topic['parent_topic_id'], int)
+        self.assertIsInstance(topic['sub_topics'], list)
 
     async def test_create_with_invalid_content(self):
         await self._create_topic(content=111,
@@ -133,3 +135,33 @@ class TopicsTestCase(HttpTestCase):
         response = await self.get(f'/topics/{first_great_child_id}')
         self.assertEqual(200, response.status_code)
         self.assertEqual(first_child_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
+
+    async def test_get_topics_hierarchy(self):
+        """
+        structure:
+        first_root:
+            child
+        second_root
+        """
+        response = await self._create_topic()
+        self.assertEqual(201, response.status_code)
+        first_root_topic_id = self.get_data_from_response(response, 'id')
+
+        response = await self._create_topic()
+        self.assertEqual(201, response.status_code)
+        second_root_topic_id = self.get_data_from_response(response, 'id')
+
+        response = await self._create_topic(parent_topic_id=first_root_topic_id)
+        self.assertEqual(201, response.status_code)
+        child_topic_id = self.get_data_from_response(response, 'id')
+
+        response = await self.get('/topics')
+        self.assertEqual(200, response.status_code)
+
+        self._assert_topic(self.get_data_from_response(response, 'topics.0'))
+        self._assert_topic(self.get_data_from_response(response, 'topics.1'))
+        self._assert_topic(self.get_data_from_response(response, 'topics.0.sub_topics.0'))
+        self.assertEqual(first_root_topic_id, self.get_data_from_response(response, 'topics.0.id'))
+        self.assertEqual(second_root_topic_id, self.get_data_from_response(response, 'topics.1.id'))
+        self.assertEqual(child_topic_id, self.get_data_from_response(response, 'topics.0.sub_topics.0.id'))
+
