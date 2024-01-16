@@ -1,10 +1,11 @@
 import os
-from typing import Optional, Mapping, Union, Iterable
+from typing import Optional, Mapping, Union, Iterable, Any
 from unittest import IsolatedAsyncioTestCase
 
 from asgi_lifespan import LifespanManager
 from httpx import AsyncClient, Response
 
+from topic_recommendations.interactor.utils.encryption_utils import hash_password
 from topic_recommendations.infra.db.core import engine, Model, session
 from topic_recommendations.infra.db.models import User
 from topic_recommendations.utils.object_utils import get_nested_element
@@ -37,7 +38,7 @@ class HttpTestCase(IsolatedAsyncioTestCase):
         async with self._lifespan_manager:
             return await self._client.get(url, *args, **kwargs)
 
-    async def post(self, url: str, data: Optional[Mapping[str, Union[str, Iterable[str]]]] = None, **kwargs):
+    async def post(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None, **kwargs):
         async with self._lifespan_manager:
             return await self._client.post(url, json=data, **kwargs)
 
@@ -45,7 +46,7 @@ class HttpTestCase(IsolatedAsyncioTestCase):
         async with self._lifespan_manager:
             return await self._client.delete(url, *args, **kwargs)
 
-    async def put(self, url: str, data: Optional[Mapping[str, Union[str, Iterable[str]]]] = None, **kwargs):
+    async def put(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None, **kwargs):
         async with self._lifespan_manager:
             return await self._client.put(url, json=data, **kwargs)
 
@@ -67,5 +68,5 @@ class HttpTestCase(IsolatedAsyncioTestCase):
 
     @staticmethod
     def _create_test_user(name='test_user', password='password123'):
-        session.add(User(name=name, password=password))
+        session.add(User(name=name, password=hash_password(password)))
         session.commit()

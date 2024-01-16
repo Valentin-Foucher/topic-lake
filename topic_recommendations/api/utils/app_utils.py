@@ -4,9 +4,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette import status
-from starlette.requests import Request
 from starlette.responses import JSONResponse
 
+from topic_recommendations.api.routes.connection import router as connection_router
 from topic_recommendations.api.routes.items import router as items_router
 from topic_recommendations.api.routes.topics import router as topics_router
 from topic_recommendations.api.routes.users import router as users_router
@@ -46,6 +46,7 @@ def add_error_handlers(app: FastAPI):
 
 
 def add_routers(app: FastAPI):
+    app.include_router(connection_router)
     app.include_router(items_router)
     app.include_router(topics_router)
     app.include_router(users_router)

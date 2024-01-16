@@ -5,11 +5,11 @@ from topic_recommendations.interactor.interfaces.base import Repository
 
 class IAccessTokensRepository(Repository, ABC):
     @abstractmethod
-    def create(self, value: str, user_id: int):
+    def create(self, user_id: int) -> str:
         pass
 
     @abstractmethod
-    def delete(self, token_id: int):
+    def delete_all(self, user_id: int):
         pass
 
     @abstractmethod

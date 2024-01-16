@@ -6,6 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import AccessToken
 from topic_recommendations.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
+from topic_recommendations.utils.object_utils import generate_token
 
 
 class AccessTokensRepository(IAccessTokensRepository):
@@ -20,10 +21,12 @@ class AccessTokensRepository(IAccessTokensRepository):
         except NoResultFound:
             return None
 
-    def create(self, value: str, user_id: int):
-        t = AccessToken(value=value, user_id=user_id)
+    def create(self, user_id: int) -> str:
+        token_value = generate_token()
+        t = AccessToken(value=token_value, user_id=user_id)
         session.add(t)
         session.commit()
+        return token_value
 
     def get_latest(self, user_id: int) -> Optional[str]:
         try:
@@ -36,16 +39,8 @@ class AccessTokensRepository(IAccessTokensRepository):
         except NoResultFound:
             return None
 
-    def delete(self, token_id: int) -> bool:
-        try:
-            token = session.scalars(
-                select(AccessToken)
-                .where(AccessToken.id == token_id)
-                .limit(1)
-            ).one()
-        except NoResultFound:
-            return False
-
-        session.delete(token)
-        session.commit()
-        return True
+    def delete_all(self, user_id: int):
+        session.execute(
+            AccessToken.__table__.delete()
+            .where(AccessToken.user_id == user_id)
+        )
