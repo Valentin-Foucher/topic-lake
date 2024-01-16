@@ -34,11 +34,10 @@ async def create_item(topic_id: int, item: CreateItemRequest, presenter: CreateI
 
 
 @router.get('/{item_id}', status_code=status.HTTP_200_OK, response_model=GetItemResponse)
-async def get_item(topic_id: int, item_id: int, presenter: GetItemPresenterDependency,
-                   items_repository: ItemsRepositoryDependency):
+async def get_item(item_id: int, presenter: GetItemPresenterDependency, items_repository: ItemsRepositoryDependency):
     return GetItemController(presenter, items_repository).execute(item_id)
 
 
 @router.delete('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_item(topic_id: int, item_id: int, items_repository: ItemsRepositoryDependency):
+async def delete_item(item_id: int, items_repository: ItemsRepositoryDependency):
     DeleteItemController(items_repository).execute(item_id)

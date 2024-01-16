@@ -18,21 +18,21 @@ from topic_recommendations.interactor.exceptions import ApplicationException
 logger = logging.getLogger(__name__)
 
 
-def _internal_exception_handler(request: Request, exc: InternalException) -> JSONResponse:
+def _internal_exception_handler(_, exc: InternalException) -> JSONResponse:
     logger.error(str(exc))
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
         'detail': str(exc)
     })
 
 
-def _application_exception_handler(request: Request, exc: ApplicationException) -> JSONResponse:
+def _application_exception_handler(_, exc: ApplicationException) -> JSONResponse:
     logger.error(str(exc))
     return JSONResponse(status_code=status_code_from_application_exception(exc), content={
         'detail': str(exc)
     })
 
 
-def _fastapi_request_validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+def _fastapi_request_validation_error_handler(_, exc: RequestValidationError) -> JSONResponse:
     logger.error(str(exc))
     return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={
         'detail': [{'message': err['msg'], 'field': err['loc'][-1], 'value': err['input']} for err in exc.errors()]
@@ -52,7 +52,7 @@ def add_routers(app: FastAPI):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_):
     init_db()
     yield
     shutdown_db()
