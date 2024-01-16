@@ -16,6 +16,7 @@ class TopicsRepository(ITopicsRepository):
     def _get_topics_as_treeview(*filters: list[bool], limit: int = 1):
         anchor_member = session.query(TopicModel, literal(0).label('level')) \
             .filter(*filters) \
+            .order_by(TopicModel.id) \
             .limit(limit) \
             .cte(name='ancestors_id', recursive=True)
 
@@ -26,6 +27,7 @@ class TopicsRepository(ITopicsRepository):
             session
             .query(children, (parent.c.level + 1).label('level'))
             .filter(children.parent_topic_id == parent.c.id)
+            .order_by(parent.c.id)
         )
 
         return session.scalars(
