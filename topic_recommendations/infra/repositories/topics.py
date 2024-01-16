@@ -38,13 +38,6 @@ class TopicsRepository(ITopicsRepository):
             )
         )
 
-    def _get_by_id(self, topic_id: int) -> Optional[TopicModel]:
-        try:
-            return self._get_topics_as_treeview(TopicModel.id == topic_id) \
-                .one()
-        except NoResultFound:
-            return None
-
     def list(self, limit: int = 100) -> list[Topic]:
         topic_list = self._get_topics_as_treeview(TopicModel.parent_topic == null(), limit=limit)
         return [topic.as_dataclass() for topic in topic_list]
@@ -56,15 +49,19 @@ class TopicsRepository(ITopicsRepository):
         session.commit()
         return t.id
 
-    def get(self, topic_id: int) -> Topic:
-        topic = self._get_by_id(topic_id)
-        return topic.as_dataclass() if topic else None
+    def get(self, topic_id: int) -> Optional[Topic]:
+        try:
+            topic = self._get_topics_as_treeview(TopicModel.id == topic_id) \
+                .one()
+        except NoResultFound:
+            return None
+
+        return topic.as_dataclass()
 
     def delete(self, topic_id: int) -> bool:
-        topic = self._get_by_id(topic_id)
-        if not topic:
-            return False
-
-        session.delete(topic)
-        session.commit()
-        return True
+        deleted_rows = session.execute(
+            TopicModel.__table__.delete()
+            .where()
+            .returning(TopicModel.id)
+        ).fetchall()
+        return len(deleted_rows) != 0
