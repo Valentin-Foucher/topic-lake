@@ -1,18 +1,23 @@
 from topic_recommendations.api.tests.base import HttpTestCase
+from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import User
 
 
 class UsersTestCase(HttpTestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        User.query.delete()
+        session.execute(
+            User.__table__.delete()
+            .where(User.id != 1)
+        )
 
     async def _create_user(self, status_code=201, error_message='', **overriding_dict):
         response = await self.post('/users', {
             'name': 'user',
             'password': 'password123',
             **overriding_dict
-        })
+        },
+                                   without_token=True)
 
         self.assertEqual(status_code, response.status_code)
         if status_code == 201:

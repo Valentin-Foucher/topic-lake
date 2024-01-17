@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.api.dependencies import ListTopicsPresenterDependency, TopicsRepositoryDependency, \
-    GetTopicPresenterDependency, UsersRepositoryDependency, CreateTopicPresenterDependency
+    GetTopicPresenterDependency, UsersRepositoryDependency, CreateTopicPresenterDependency, AuthenticationDependency
 from topic_recommendations.api.models.topics import CreateTopicRequest, GetTopicResponse, ListTopicsResponse, \
     CreateTopicResponse
 from topic_recommendations.app.controllers.topics.create import CreateTopicController
@@ -11,8 +11,9 @@ from topic_recommendations.app.controllers.topics.get import GetTopicController
 from topic_recommendations.app.controllers.topics.list import ListTopicsController
 
 router = APIRouter(
-    prefix="/topics",
-    tags=["topics"]
+    prefix='/topics',
+    tags=['topics'],
+    dependencies=[AuthenticationDependency]
 )
 
 

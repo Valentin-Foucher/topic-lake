@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
+from topic_recommendations.api.utils.route_utils import ensure_authentication
 from topic_recommendations.app.presenters.connection import LogInPresenter
 from topic_recommendations.app.presenters.items import GetItemPresenter, ListItemsPresenter, CreateItemPresenter
 from topic_recommendations.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
@@ -35,3 +36,6 @@ GetItemPresenterDependency = Annotated[GetItemPresenter, Depends(GetItemPresente
 CreateItemPresenterDependency = Annotated[CreateItemPresenter, Depends(CreateItemPresenter)]
 
 LogInPresenterDependency = Annotated[LogInPresenter, Depends(LogInPresenter)]
+
+# Authentication
+AuthenticationDependency = Depends(ensure_authentication)

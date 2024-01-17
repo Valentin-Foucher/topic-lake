@@ -2,7 +2,8 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.api.dependencies import ListItemsPresenterDependency, ItemsRepositoryDependency, \
-    GetItemPresenterDependency, CreateItemPresenterDependency, TopicsRepositoryDependency, UsersRepositoryDependency
+    GetItemPresenterDependency, CreateItemPresenterDependency, TopicsRepositoryDependency, UsersRepositoryDependency, \
+    AuthenticationDependency
 from topic_recommendations.api.models.items import CreateItemRequest, ListItemsResponse, GetItemResponse
 from topic_recommendations.app.controllers.items.create import CreateItemController
 from topic_recommendations.app.controllers.items.delete import DeleteItemController
@@ -10,8 +11,9 @@ from topic_recommendations.app.controllers.items.get import GetItemController
 from topic_recommendations.app.controllers.items.list import ListItemsController
 
 router = APIRouter(
-    prefix="/topics/{topic_id}/items",
-    tags=["items"]
+    prefix='/topics/{topic_id}/items',
+    tags=['items'],
+    dependencies=[AuthenticationDependency]
 )
 
 

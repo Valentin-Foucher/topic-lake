@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from starlette import status
 
 from topic_recommendations.api.dependencies import UsersRepositoryDependency, AccessTokensRepositoryDependency, \
-    LogInPresenterDependency
+    LogInPresenterDependency, AuthenticationDependency
 from topic_recommendations.api.models.connection import LogInRequest, LogOutRequest, LogInResponse
 from topic_recommendations.app.controllers.connection.login import LogInController
 from topic_recommendations.app.controllers.connection.logout import LogOutController
@@ -23,7 +23,7 @@ async def login(credentials: LogInRequest, presenter: LogInPresenterDependency,
     )
 
 
-@router.post('/logout', status_code=status.HTTP_200_OK)
+@router.post('/logout', status_code=status.HTTP_200_OK, dependencies=[AuthenticationDependency])
 async def logout(logout_request: LogOutRequest, access_tokens_repository: AccessTokensRepositoryDependency,
                  users_repository: UsersRepositoryDependency):
     LogOutController(access_tokens_repository, users_repository).execute(logout_request.user_id)

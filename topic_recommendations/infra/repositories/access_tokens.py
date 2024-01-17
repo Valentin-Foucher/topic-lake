@@ -59,3 +59,15 @@ class AccessTokensRepository(IAccessTokensRepository):
             )
             .values(revoked=True)
         )
+
+    def get_user_id_for_value(self, value: str) -> Optional[int]:
+        try:
+            t = session.scalars(
+                select(AccessToken)
+                .where(AccessToken.value == value)
+                .limit(1)
+            ).one()
+        except NoResultFound:
+            return None
+
+        return t.user_id

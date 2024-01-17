@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, and_
+from sqlalchemy import select
 
 from topic_recommendations.api.tests.base import HttpTestCase
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import AccessToken
 
 
-class ItemsTestCase(HttpTestCase):
+class ConnectionTestCase(HttpTestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
         AccessToken.query.delete()
@@ -17,7 +17,8 @@ class ItemsTestCase(HttpTestCase):
             'username': 'test_user',
             'password': 'password123',
             **overriding_dict
-        })
+        },
+                                   without_token=True)
 
         self.assertEqual(status_code, response.status_code)
         if status_code == 200:
@@ -91,19 +92,17 @@ class ItemsTestCase(HttpTestCase):
         self.assertNotEqual(old_token, new_token)
 
     async def test_logout_with_invalid_user_id(self):
-        await self._logout(user_id='invalid user id', status_code=422,
-                           error_message='Input should be a valid integer, unable to parse string as an integer')
-        await self._logout(user_id=123456, status_code=404, error_message='User 123456 does not exist')
+        await self._logout(user_id='invalid user id', status_code=401, error_message='Unauthorized')
 
     async def test_logout(self):
-        await self._logout()
+        await self._logout(status_code=401, error_message='Unauthorized')
         tokens = session.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
         ).all()
         self.assertEqual(0, len(tokens))
 
-        await self._login()
+        self.login()
         tokens = session.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)

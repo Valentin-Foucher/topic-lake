@@ -7,9 +7,8 @@ from httpx import AsyncClient, Response
 
 from topic_recommendations.interactor.utils.encryption_utils import hash_password
 from topic_recommendations.infra.db.core import engine, Model, session
-from topic_recommendations.infra.db.models import User
-from topic_recommendations.utils.object_utils import get_nested_element
-
+from topic_recommendations.infra.db.models import User, AccessToken
+from topic_recommendations.utils.object_utils import get_nested_element, generate_token
 
 os.environ['POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING'] = \
     'postgresql://postgres:postgres@localhost:5432/topic-recommendations'
@@ -19,6 +18,7 @@ from topic_recommendations.api.main import app
 
 class HttpTestCase(IsolatedAsyncioTestCase):
     _client: AsyncClient
+    token: str
 
     @classmethod
     def setUpClass(cls):
@@ -32,23 +32,30 @@ class HttpTestCase(IsolatedAsyncioTestCase):
         cls._clear_db()
 
     async def asyncSetUp(self):
+        self.login()
         self._lifespan_manager = LifespanManager(app)
 
-    async def get(self, url: str, *args, **kwargs):
+    async def get(self, url: str, *args, without_token: bool = False, **kwargs):
+        headers = self._get_headers(without_token)
         async with self._lifespan_manager:
-            return await self._client.get(url, *args, **kwargs)
+            return await self._client.get(url, headers=headers, *args, **kwargs)
 
-    async def post(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None, **kwargs):
+    async def post(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None,
+                   without_token: bool = False, **kwargs):
+        headers = self._get_headers(without_token)
         async with self._lifespan_manager:
-            return await self._client.post(url, json=data, **kwargs)
+            return await self._client.post(url, headers=headers, json=data, **kwargs)
 
-    async def delete(self, url: str, *args, **kwargs):
+    async def delete(self, url: str, *args, without_token: bool = False, **kwargs):
+        headers = self._get_headers(without_token)
         async with self._lifespan_manager:
-            return await self._client.delete(url, *args, **kwargs)
+            return await self._client.delete(url, headers=headers, *args, **kwargs)
 
-    async def put(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None, **kwargs):
+    async def put(self, url: str, data: Optional[Mapping[str, Union[Any, Iterable[Any]]]] = None,
+                  without_token: bool = False, **kwargs):
+        headers = self._get_headers(without_token)
         async with self._lifespan_manager:
-            return await self._client.put(url, json=data, **kwargs)
+            return await self._client.put(url, headers=headers, json=data, **kwargs)
 
     @staticmethod
     def get_data_from_response(response: Response, path: str):
@@ -68,5 +75,20 @@ class HttpTestCase(IsolatedAsyncioTestCase):
 
     @staticmethod
     def _create_test_user(name='test_user', password='password123'):
-        session.add(User(name=name, password=hash_password(password)))
+        u = User(name=name, password=hash_password(password))
+        session.add(u)
+        session.commit()
+        session.flush()
+        return u
+
+    def _get_headers(self, without_token: bool):
+        headers = {}
+        if not without_token:
+            headers['Authorization'] = f'Bearer {self.token}'
+        return headers
+
+    def login(self):
+        self.token = generate_token()
+        token = AccessToken(value=self.token, user_id=1)
+        session.add(token)
         session.commit()
