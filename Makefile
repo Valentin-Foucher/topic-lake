@@ -34,3 +34,7 @@ stop-docker:
 #: Run all tests
 tests:
 	poetry env use 3.10; poetry run pytest
+
+#: Show coverage
+coverage:
+	poetry env use 3.10; poetry run pytest --cov=topic_recommendations
