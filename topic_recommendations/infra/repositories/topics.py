@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, null, literal
+from sqlalchemy import select, null, literal, and_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
@@ -33,8 +33,10 @@ class TopicsRepository(ITopicsRepository):
         return session.scalars(
             select(TopicModel, recursive_member.c.level)
             .where(
-                TopicModel.id == recursive_member.c.id,
-                recursive_member.c.level == 0
+                and_(
+                    TopicModel.id == recursive_member.c.id,
+                    recursive_member.c.level == 0
+                )
             )
         )
 

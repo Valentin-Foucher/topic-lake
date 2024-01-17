@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, update
 from sqlalchemy.exc import NoResultFound
 
 from topic_recommendations.infra.constants import TOKEN_MAX_DURATION
@@ -37,6 +37,7 @@ class AccessTokensRepository(IAccessTokensRepository):
                 .where(
                     and_(
                         AccessToken.user_id == user_id,
+                        AccessToken.revoked.is_(False),
                         AccessToken.creation_date > datetime.utcnow() - timedelta(seconds=TOKEN_MAX_DURATION))
                 )
                 .order_by(AccessToken.creation_date.desc())
@@ -49,6 +50,12 @@ class AccessTokensRepository(IAccessTokensRepository):
 
     def delete_all(self, user_id: int):
         session.execute(
-            AccessToken.__table__.delete()
-            .where(AccessToken.user_id == user_id)
+            update(AccessToken)
+            .where(
+                and_(
+                    AccessToken.user_id == user_id,
+                    AccessToken.revoked.is_(False)
+                )
+            )
+            .values(revoked=True)
         )

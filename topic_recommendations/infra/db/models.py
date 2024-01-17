@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship, mapped_column
 
 from topic_recommendations.infra.db.core import Model
@@ -50,6 +50,7 @@ class AccessToken(Model):
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     value = Column('content', String, nullable=False)
     creation_date = Column('creation_date', DateTime, default=datetime.utcnow)
+    revoked = Column('revoked', Boolean, default=False)
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     user = relationship('User', back_populates='access_tokens')

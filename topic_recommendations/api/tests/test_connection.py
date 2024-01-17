@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 
 from topic_recommendations.api.tests.base import HttpTestCase
 from topic_recommendations.infra.db.core import session
@@ -109,10 +109,12 @@ class ItemsTestCase(HttpTestCase):
             .where(AccessToken.user_id == 1)
         ).all()
         self.assertEqual(1, len(tokens))
+        self.assertFalse(tokens[0].revoked)
 
         await self._logout()
         tokens = session.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
         ).all()
-        self.assertEqual(0, len(tokens))
+        self.assertEqual(1, len(tokens))
+        self.assertTrue(tokens[0].revoked)
