@@ -5,20 +5,26 @@ from starlette.requests import Request
 from topic_recommendations.api.exceptions import Unauthorized, NotFound
 from topic_recommendations.infra.repositories.access_tokens import AccessTokensRepository
 from topic_recommendations.infra.repositories.users import UsersRepository
+from topic_recommendations.utils.crypto_utils import decode_jwt
 
 
 async def ensure_authentication(request: Request, credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    access_tokens_repository = AccessTokensRepository()
-    user_id, revoked = access_tokens_repository.get_user_id_for_value(credentials.credentials)
+    token = credentials.credentials
+    user_id = decode_jwt(token)
 
     if not user_id:
         raise Unauthorized('Unauthorized')
+
+    access_tokens_repository = AccessTokensRepository()
+    match access_tokens_repository.is_revoked(token):
+        case None:
+            raise Unauthorized('Invalid token')
+        case True:
+            access_tokens_repository.create(user_id)
 
     user = UsersRepository().get(user_id)
     if not user:
         raise NotFound(f'User {user_id} not found')
 
-    if revoked:
-        access_tokens_repository.create(user_id)
 
     request.scope['user'] = user

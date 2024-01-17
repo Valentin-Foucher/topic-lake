@@ -4,11 +4,11 @@ from typing import Optional
 from sqlalchemy import select, and_, update
 from sqlalchemy.exc import NoResultFound
 
-from topic_recommendations.infra.constants import TOKEN_MAX_DURATION
+from topic_recommendations.constants import TOKEN_MAX_DURATION
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import AccessToken
 from topic_recommendations.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
-from topic_recommendations.utils.object_utils import generate_token
+from topic_recommendations.utils.crypto_utils import encode_jwt
 
 
 class AccessTokensRepository(IAccessTokensRepository):
@@ -24,7 +24,7 @@ class AccessTokensRepository(IAccessTokensRepository):
             return None
 
     def create(self, user_id: int) -> str:
-        token_value = generate_token()
+        token_value = encode_jwt(user_id)
         t = AccessToken(value=token_value, user_id=user_id)
         session.add(t)
         session.commit()
@@ -60,7 +60,7 @@ class AccessTokensRepository(IAccessTokensRepository):
             .values(revoked=True)
         )
 
-    def get_user_id_for_value(self, value: str) -> Optional[int]:
+    def is_revoked(self, value: str) -> Optional[bool]:
         try:
             t = session.scalars(
                 select(AccessToken)
@@ -70,4 +70,4 @@ class AccessTokensRepository(IAccessTokensRepository):
         except NoResultFound:
             return None
 
-        return t.user_id
+        return t.revoked

@@ -18,5 +18,5 @@ class IAccessTokensRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def get_user_id_for_value(self, value: str) -> Optional[int]:
+    def is_revoked(self, value: str) -> Optional[bool]:
         pass

@@ -63,7 +63,3 @@ def get_object_by_name(name: str) -> Type:
     module_name, object_name = name.rsplit('.', 1)
     module = importlib.import_module(module_name)
     return getattr(module, object_name)
-
-
-def generate_token() -> str:
-    return uuid4().hex

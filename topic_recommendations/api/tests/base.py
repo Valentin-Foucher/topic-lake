@@ -8,7 +8,8 @@ from httpx import AsyncClient, Response
 from topic_recommendations.interactor.utils.encryption_utils import hash_password
 from topic_recommendations.infra.db.core import engine, Model, session
 from topic_recommendations.infra.db.models import User, AccessToken
-from topic_recommendations.utils.object_utils import get_nested_element, generate_token
+from topic_recommendations.utils.crypto_utils import encode_jwt
+from topic_recommendations.utils.object_utils import get_nested_element
 
 os.environ['POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING'] = \
     'postgresql://postgres:postgres@localhost:5432/topic-recommendations'
@@ -88,7 +89,7 @@ class HttpTestCase(IsolatedAsyncioTestCase):
         return headers
 
     def login(self, user_id=1):
-        self.token = generate_token()
+        self.token = encode_jwt(user_id)
         token = AccessToken(value=self.token, user_id=user_id)
         session.add(token)
         session.commit()

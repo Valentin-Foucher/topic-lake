@@ -24,7 +24,6 @@ class ConnectionTestCase(HttpTestCase):
         if status_code == 200:
             token = self.get_data_from_response(response, 'token')
             self.assertIsInstance(token, str)
-            self.assertEqual(32, len(token))
         elif status_code == 422:
             field, value = next(iter(overriding_dict.items()))
             self.validate_input_validation_error(response, {
@@ -84,10 +83,11 @@ class ConnectionTestCase(HttpTestCase):
         self.assertNotEqual(old_token, new_token)
 
     async def test_logout_with_invalid_user_id(self):
+        self.token = 'azdedqsdqs65d1q6s5d16qs51d65q1'
         await self._logout(status_code=401, error_message='Unauthorized')
 
     async def test_logout(self):
-        await self._logout(status_code=401, error_message='Unauthorized')
+        await self._logout(status_code=401, error_message='Invalid token')
         tokens = session.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
