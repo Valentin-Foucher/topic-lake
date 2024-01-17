@@ -30,7 +30,7 @@ class AccessTokensRepository(IAccessTokensRepository):
 
     def get_latest(self, user_id: int) -> Optional[str]:
         try:
-            return session.scalars(
+            t = session.scalars(
                 select(AccessToken)
                 .where(AccessToken.user_id == user_id)
                 .order_by(AccessToken.creation_date.desc())
@@ -38,6 +38,8 @@ class AccessTokensRepository(IAccessTokensRepository):
             ).one()
         except NoResultFound:
             return None
+
+        return t.value
 
     def delete_all(self, user_id: int):
         session.execute(

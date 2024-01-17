@@ -1,5 +1,4 @@
 from topic_recommendations.interactor.exceptions import DoesNotExist, InvalidInputData
-from topic_recommendations.interactor.interfaces.base import Presenter
 from topic_recommendations.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
 from topic_recommendations.interactor.interfaces.repositories.users import IUsersRepository
 from topic_recommendations.interactor.use_cases.base import UseCase
@@ -19,4 +18,6 @@ class LogIn(UseCase):
         if not check_password(user.password, password):
             raise InvalidInputData('Password is incorrect')
 
-        return self._access_tokens_repository.create(user.id)
+        return \
+            self._access_tokens_repository.get_latest(user.id) or \
+            self._access_tokens_repository.create(user.id)

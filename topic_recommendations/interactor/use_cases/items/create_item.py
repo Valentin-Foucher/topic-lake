@@ -1,5 +1,4 @@
 from topic_recommendations.interactor.exceptions import DoesNotExist
-from topic_recommendations.interactor.interfaces.base import Presenter
 from topic_recommendations.interactor.interfaces.repositories.items import IItemsRepository
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_recommendations.interactor.interfaces.repositories.users import IUsersRepository

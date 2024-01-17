@@ -71,6 +71,13 @@ class ItemsTestCase(HttpTestCase):
     async def test_login(self):
         await self._login()
 
+    async def test_login_several_times(self):
+        response = await self._login()
+        token = self.get_data_from_response(response, 'token')
+        response = await self._login()
+        token2 = self.get_data_from_response(response, 'token')
+        self.assertEqual(token, token2)
+
     async def test_logout_with_invalid_user_id(self):
         await self._logout(user_id='invalid user id', status_code=422,
                            error_message='Input should be a valid integer, unable to parse string as an integer')
