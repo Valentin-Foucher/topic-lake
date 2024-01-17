@@ -60,10 +60,9 @@ def init_db():
     logger.info('Initializing database')
     if not database_exists(engine.url):
         create_database(engine.url)
+        Model.metadata.create_all(engine)
     else:
         engine.connect()
-
-    Model.metadata.create_all(engine)
 
 
 def shutdown_db():
