@@ -87,8 +87,8 @@ class HttpTestCase(IsolatedAsyncioTestCase):
             headers['Authorization'] = f'Bearer {self.token}'
         return headers
 
-    def login(self):
+    def login(self, user_id=1):
         self.token = generate_token()
-        token = AccessToken(value=self.token, user_id=1)
+        token = AccessToken(value=self.token, user_id=user_id)
         session.add(token)
         session.commit()

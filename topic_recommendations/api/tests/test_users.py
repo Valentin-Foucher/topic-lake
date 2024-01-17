@@ -50,15 +50,11 @@ class UsersTestCase(HttpTestCase):
     async def test_create_user(self):
         await self._create_user()
 
-    async def test_get_unknown_user(self):
-        response = await self.get('/users/123456')
-        self.assertEqual(404, response.status_code)
-        self.assertEqual('User 123456 does not exist', self.get_data_from_response(response, 'detail'))
-
     async def test_get_user(self):
         response = await self._create_user()
-        inserted_it = self.get_data_from_response(response, 'id')
+        inserted_id = self.get_data_from_response(response, 'id')
+        self.login(inserted_id)
 
-        response = await self.get(f'/users/{inserted_it}')
+        response = await self.get('/users/self')
         self.assertEqual(200, response.status_code)
         self._assert_user(self.get_data_from_response(response, 'user'))

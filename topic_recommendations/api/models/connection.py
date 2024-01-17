@@ -9,6 +9,3 @@ class LogInRequest(BaseModel):
 class LogInResponse(BaseModel):
     token: str
 
-
-class LogOutRequest(BaseModel):
-    user_id: int

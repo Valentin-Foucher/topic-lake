@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from starlette import status
+from starlette.requests import Request
 
 from topic_recommendations.api.dependencies import UsersRepositoryDependency, CreateUserPresenterDependency, \
     GetUserPresenterDependency, AuthenticationDependency
@@ -22,7 +23,7 @@ async def create_user(user: CreateUserRequest, presenter: CreateUserPresenterDep
     )
 
 
-@router.get('/{user_id}', status_code=status.HTTP_200_OK, response_model=GetUserResponse,
+@router.get('/self', status_code=status.HTTP_200_OK, response_model=GetUserResponse,
             dependencies=[AuthenticationDependency])
-async def get_user(user_id: int, presenter: GetUserPresenterDependency, users_repository: UsersRepositoryDependency):
-    return GetUserController(presenter, users_repository).execute(user_id)
+async def get_user(request: Request, presenter: GetUserPresenterDependency, users_repository: UsersRepositoryDependency):
+    return GetUserController(presenter, users_repository).execute(request.user.id)

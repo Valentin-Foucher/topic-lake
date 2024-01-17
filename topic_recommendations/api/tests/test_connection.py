@@ -35,20 +35,12 @@ class ConnectionTestCase(HttpTestCase):
 
         return response
 
-    async def _logout(self, status_code=200, error_message='', **overriding_dict):
-        response = await self.post('/logout', {
-            'user_id': 1,
-            **overriding_dict
-        })
+    async def _logout(self, status_code=200, error_message=''):
+        response = await self.post('/logout', {})
 
         self.assertEqual(status_code, response.status_code)
 
-        if status_code == 422:
-            field, value = next(iter(overriding_dict.items()))
-            self.validate_input_validation_error(response, {
-                field: [error_message, value]
-            })
-        elif status_code != 200:
+        if status_code != 200:
             self.assertEqual(error_message, self.get_data_from_response(response, 'detail'))
 
         return response
@@ -92,7 +84,7 @@ class ConnectionTestCase(HttpTestCase):
         self.assertNotEqual(old_token, new_token)
 
     async def test_logout_with_invalid_user_id(self):
-        await self._logout(user_id='invalid user id', status_code=401, error_message='Unauthorized')
+        await self._logout(status_code=401, error_message='Unauthorized')
 
     async def test_logout(self):
         await self._logout(status_code=401, error_message='Unauthorized')
