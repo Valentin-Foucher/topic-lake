@@ -1,0 +1,1 @@
+TOKEN_MAX_DURATION = 3600  # seconds

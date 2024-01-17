@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy import select
 
 from topic_recommendations.api.tests.base import HttpTestCase
@@ -77,6 +79,16 @@ class ItemsTestCase(HttpTestCase):
         response = await self._login()
         token2 = self.get_data_from_response(response, 'token')
         self.assertEqual(token, token2)
+
+    async def test_login_after_token_expiration(self):
+        old_token = '123456'
+        t = AccessToken(value=old_token, user_id=1, creation_date=datetime.utcnow() - timedelta(hours=1))
+        session.add(t)
+        session.commit()
+
+        response = await self._login()
+        new_token = self.get_data_from_response(response, 'token')
+        self.assertNotEqual(old_token, new_token)
 
     async def test_logout_with_invalid_user_id(self):
         await self._logout(user_id='invalid user id', status_code=422,

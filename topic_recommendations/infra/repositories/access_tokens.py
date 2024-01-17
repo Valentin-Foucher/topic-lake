@@ -1,8 +1,10 @@
+from datetime import datetime, timedelta
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.exc import NoResultFound
 
+from topic_recommendations.infra.constants import TOKEN_MAX_DURATION
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import AccessToken
 from topic_recommendations.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
@@ -32,7 +34,11 @@ class AccessTokensRepository(IAccessTokensRepository):
         try:
             t = session.scalars(
                 select(AccessToken)
-                .where(AccessToken.user_id == user_id)
+                .where(
+                    and_(
+                        AccessToken.user_id == user_id,
+                        AccessToken.creation_date > datetime.utcnow() - timedelta(seconds=TOKEN_MAX_DURATION))
+                )
                 .order_by(AccessToken.creation_date.desc())
                 .limit(1)
             ).one()
