@@ -61,7 +61,7 @@ class TopicsRepository(ITopicsRepository):
     def delete(self, topic_id: int) -> bool:
         deleted_rows = session.execute(
             TopicModel.__table__.delete()
-            .where()
+            .where(TopicModel.id == topic_id)
             .returning(TopicModel.id)
         ).fetchall()
         return len(deleted_rows) != 0

@@ -1,12 +1,10 @@
 from topic_recommendations.interactor.exceptions import DoesNotExist
-from topic_recommendations.interactor.interfaces.base import Presenter
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_recommendations.interactor.use_cases.base import UseCase
 
 
 class GetTopic(UseCase):
-    def __init__(self, presenter: Presenter, repository: ITopicsRepository):
-        self._presenter = presenter
+    def __init__(self, repository: ITopicsRepository):
         self._repository = repository
 
     def execute(self, topic_id: int):
@@ -14,4 +12,4 @@ class GetTopic(UseCase):
         if not result:
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 
-        return self._presenter.present(result)
+        return result

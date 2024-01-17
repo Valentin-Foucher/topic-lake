@@ -42,7 +42,7 @@ class ItemsRepository(IItemsRepository):
     def delete(self, item_id: int) -> bool:
         deleted_rows = session.execute(
             ItemModel.__table__.delete()
-            .where()
+            .where(ItemModel.id == item_id)
             .returning(ItemModel.id)
         ).fetchall()
         return len(deleted_rows) != 0

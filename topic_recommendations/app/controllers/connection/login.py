@@ -13,5 +13,6 @@ class LogInController(Controller):
         self._users_repository = users_repository
 
     def execute(self, username: str, password: str):
-        return LogIn(self._presenter, self._access_tokens_repository, self._users_repository) \
+        result = LogIn(self._access_tokens_repository, self._users_repository) \
             .execute(username, password)
+        return self._presenter.present(result)

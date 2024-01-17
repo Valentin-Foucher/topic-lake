@@ -10,5 +10,6 @@ class ListItemsController(Controller):
         self._repository = repository
 
     def execute(self, topic_id: int):
-        return ListItems(self._presenter, self._repository).execute(topic_id)
+        result = ListItems(self._repository).execute(topic_id)
+        return self._presenter.present(result)
 

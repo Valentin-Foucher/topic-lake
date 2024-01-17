@@ -10,5 +10,6 @@ class ListTopicsController(Controller):
         self._repository = repository
 
     def execute(self):
-        return ListTopics(self._presenter, self._repository).execute()
+        result = ListTopics(self._repository).execute()
+        return self._presenter.present(result)
 

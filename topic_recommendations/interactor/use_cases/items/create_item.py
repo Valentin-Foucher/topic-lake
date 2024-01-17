@@ -7,9 +7,8 @@ from topic_recommendations.interactor.use_cases.base import UseCase
 
 
 class CreateItem(UseCase):
-    def __init__(self, presenter: Presenter, items_repository: IItemsRepository, topics_repository: ITopicsRepository,
+    def __init__(self, items_repository: IItemsRepository, topics_repository: ITopicsRepository,
                  users_repository: IUsersRepository):
-        self._presenter = presenter
         self._items_repository = items_repository
         self._topics_repository = topics_repository
         self._users_repository = users_repository
@@ -21,7 +20,4 @@ class CreateItem(UseCase):
         if not self._topics_repository.get(topic_id):
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 
-        inserted_id = self._items_repository.create(topic_id, user_id, content)
-        return self._presenter.present(inserted_id)
-
-
+        return self._items_repository.create(topic_id, user_id, content)

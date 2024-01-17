@@ -10,5 +10,6 @@ class GetItemController(Controller):
         self._repository = repository
 
     def execute(self, item_id: int):
-        return GetItem(self._presenter, self._repository).execute(item_id)
+        result = GetItem(self._repository).execute(item_id)
+        return self._presenter.present(result)
 

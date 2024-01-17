@@ -23,7 +23,7 @@ class Topic(Model):
 
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     content = Column('content', String, nullable=False)
-    user_id = mapped_column(ForeignKey('users.id'))
+    user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     parent_topic_id = mapped_column(ForeignKey('topics.id'))
 
     sub_topics = relationship('Topic', back_populates='parent_topic', cascade='all, delete-orphan')
@@ -37,8 +37,8 @@ class Item(Model):
 
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     content = Column('content', String, nullable=False)
-    user_id = mapped_column(ForeignKey('users.id'))
-    topic_id = mapped_column(ForeignKey('topics.id'))
+    user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    topic_id = mapped_column(ForeignKey('topics.id', ondelete='CASCADE'))
 
     user = relationship('User', back_populates='item_creations')
     topic = relationship('Topic', back_populates='item_creations')
@@ -50,6 +50,6 @@ class AccessToken(Model):
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     value = Column('content', String, nullable=False)
     creation_date = Column('creation_date', DateTime, default=datetime.utcnow)
-    user_id = mapped_column(ForeignKey('users.id'))
+    user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
     user = relationship('User', back_populates='access_tokens')

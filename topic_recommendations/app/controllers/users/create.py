@@ -11,5 +11,5 @@ class CreateUserController(Controller):
         self._repository = repository
 
     def execute(self, name: str, password: str):
-        hashed_password = hash_password(password)
-        return CreateUser(self._presenter, self._repository).execute(name, hashed_password)
+        result = CreateUser(self._repository).execute(name, password)
+        return self._presenter.present(result)

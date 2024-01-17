@@ -7,9 +7,7 @@ from topic_recommendations.interactor.utils.encryption_utils import check_passwo
 
 
 class LogIn(UseCase):
-    def __init__(self, presenter: Presenter, access_tokens_repository: IAccessTokensRepository,
-                 users_repository: IUsersRepository):
-        self._presenter = presenter
+    def __init__(self, access_tokens_repository: IAccessTokensRepository, users_repository: IUsersRepository):
         self._access_tokens_repository = access_tokens_repository
         self._users_repository = users_repository
 
@@ -21,5 +19,4 @@ class LogIn(UseCase):
         if not check_password(user.password, password):
             raise InvalidInputData('Password is incorrect')
 
-        token_value = self._access_tokens_repository.create(user.id)
-        return self._presenter.present(token_value)
+        return self._access_tokens_repository.create(user.id)

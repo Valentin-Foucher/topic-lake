@@ -10,5 +10,6 @@ class GetTopicController(Controller):
         self._repository = repository
 
     def execute(self, topic_id: int):
-        return GetTopic(self._presenter, self._repository).execute(topic_id)
+        result = GetTopic(self._repository).execute(topic_id)
+        return self._presenter.present(result)
 

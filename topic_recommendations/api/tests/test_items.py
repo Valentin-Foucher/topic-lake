@@ -102,7 +102,6 @@ class ItemsTestCase(HttpTestCase):
         test_topic = Topic(content='deleted_topic', user_id=1)
         session.add(test_topic)
         session.commit()
-        session.commit()
         session.flush()
 
         response = await self._create_item(topic_id=test_topic.id)
