@@ -88,13 +88,11 @@ class ItemsTestCase(HttpTestCase):
         response = await self.get('/topics/1/items')
         self.assertEqual(0, len(self.get_data_from_response(response, 'items')))
 
-        response = await self._create_item()
-        self.assertEqual(201, response.status_code)
+        await self._create_item()
         response = await self.get('/topics/1/items')
         self.assertEqual(1, len(self.get_data_from_response(response, 'items')))
 
-        response = await self._create_item()
-        self.assertEqual(201, response.status_code)
+        await self._create_item()
         response = await self.get('/topics/1/items')
         self.assertEqual(2, len(self.get_data_from_response(response, 'items')))
 

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update, and_, func
 from sqlalchemy.exc import NoResultFound
 
 from topic_recommendations.domain.entities.items import Item
@@ -14,14 +14,16 @@ class ItemsRepository(IItemsRepository):
         item_list = session.scalars(
             select(ItemModel)
             .where(ItemModel.topic_id == topic_id)
+            .order_by(ItemModel.id)
             .limit(limit)
         ).all()
         return [item.as_dataclass() for item in item_list]
 
-    def create(self, topic_id: int,  user_id: int, content: str):
+    def create(self, topic_id: int,  user_id: int, content: str, rank: int) -> int:
         i = ItemModel(topic_id=topic_id,
                       user_id=user_id,
-                      content=content)
+                      content=content,
+                      rank=rank)
         session.add(i)
         session.flush()
         session.commit()
@@ -46,3 +48,22 @@ class ItemsRepository(IItemsRepository):
             .returning(ItemModel.id)
         ).fetchall()
         return len(deleted_rows) != 0
+
+    def update_ranks_for_topic(self, topic_id: int, rank: int):
+        session.execute(
+            update(ItemModel)
+            .where(
+                and_(
+                    ItemModel.topic_id == topic_id,
+                    ItemModel.rank >= rank
+                )
+            )
+            .values(rank=ItemModel.rank + 1)
+        )
+
+    def get_max_rank(self, topic_id: int) -> int:
+        return session.scalars(
+            select(func.max(ItemModel.rank))
+            .where(ItemModel.topic_id == topic_id)
+            .limit(1)
+        ).one() or 0

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship, mapped_column
 
 from topic_recommendations.infra.db.core import Model
@@ -37,11 +37,14 @@ class Item(Model):
 
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     content = Column('content', String, nullable=False)
+    rank = Column('rank', Integer, nullable=False)
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     topic_id = mapped_column(ForeignKey('topics.id', ondelete='CASCADE'))
 
     user = relationship('User', back_populates='item_creations')
     topic = relationship('Topic', back_populates='item_creations')
+
+    __table_args__ = (UniqueConstraint('topic_id', 'rank', deferrable=True),)
 
 
 class AccessToken(Model):

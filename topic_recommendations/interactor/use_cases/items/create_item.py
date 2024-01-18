@@ -12,11 +12,14 @@ class CreateItem(UseCase):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, topic_id: int, user_id: int, content: str):
+    def execute(self, topic_id: int, user_id: int, content: str, rank: int):
         if not self._users_repository.get(user_id):
             raise DoesNotExist(f'User {user_id} does not exist')
 
         if not self._topics_repository.get(topic_id):
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 
-        return self._items_repository.create(topic_id, user_id, content)
+        self._items_repository.update_ranks_for_topic(topic_id, rank)
+        max_rank = self._items_repository.get_max_rank(topic_id)
+
+        return self._items_repository.create(topic_id, user_id, content, min(rank, max_rank + 1))

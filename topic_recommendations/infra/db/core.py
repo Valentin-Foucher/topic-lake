@@ -15,7 +15,7 @@ engine = create_engine(config.get('postgres.connection_string'))
 session = scoped_session(sessionmaker(bind=engine))
 
 Model = declarative_base(name='Model')
-TModel = TypeVar("TModel", bound=Model)
+TModel = TypeVar('TModel', bound=Model)
 
 Model.query = session.query_property()
 

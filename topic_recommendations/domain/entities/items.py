@@ -7,3 +7,4 @@ class Item:
     content: str
     topic_content: str
     user_name: str
+    rank: int

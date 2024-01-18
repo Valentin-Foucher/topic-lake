@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+import sys
+
+from pydantic import BaseModel, Field
 
 
 class Item(BaseModel):
@@ -11,6 +13,7 @@ class Item(BaseModel):
 class CreateItemRequest(BaseModel):
     content: str
     user_id: int
+    rank: int = Field(gt=0, default=sys.maxsize)
 
 
 class GetItemResponse(BaseModel):

@@ -10,7 +10,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def create(self, topic_id: int, user_id: int, content: str):
+    def create(self, topic_id: int, user_id: int, content: str, rank: int) -> int:
         pass
 
     @abstractmethod
@@ -19,4 +19,12 @@ class IItemsRepository(Repository, ABC):
 
     @abstractmethod
     def delete(self, item_id: int):
+        pass
+
+    @abstractmethod
+    def update_ranks_for_topic(self, topic_id: int, rank: int):
+        pass
+
+    @abstractmethod
+    def get_max_rank(self, topic_id: int) -> int:
         pass

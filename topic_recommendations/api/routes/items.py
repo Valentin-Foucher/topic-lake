@@ -31,7 +31,8 @@ async def create_item(topic_id: int, item: CreateItemRequest, presenter: CreateI
     return CreateItemController(presenter, items_repository, topics_repository, users_repository).execute(
         topic_id,
         item.user_id,
-        item.content
+        item.content,
+        item.rank
     )
 
 
