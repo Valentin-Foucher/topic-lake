@@ -20,6 +20,7 @@ from topic_recommendations.api.main import app
 class HttpTestCase(IsolatedAsyncioTestCase):
     _client: AsyncClient
     token: str
+    other_user_id: int
 
     @classmethod
     def setUpClass(cls):

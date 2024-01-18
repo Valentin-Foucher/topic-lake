@@ -19,5 +19,5 @@ class ITopicsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def delete(self, topic_id: int):
+    def delete(self, user_id: int, topic_id: int) -> bool:
         pass

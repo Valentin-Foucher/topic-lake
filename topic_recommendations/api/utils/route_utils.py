@@ -26,5 +26,4 @@ async def ensure_authentication(request: Request, credentials: HTTPAuthorization
     if not user:
         raise NotFound(f'User {user_id} not found')
 
-
     request.scope['user'] = user

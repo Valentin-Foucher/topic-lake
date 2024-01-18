@@ -7,5 +7,8 @@ class DeleteTopicController(Controller):
     def __init__(self, repository: ITopicsRepository):
         self._repository = repository
 
-    def execute(self, topic_id: int):
-        DeleteTopic(self._repository).execute(topic_id)
+    def execute(self, user_id: int, topic_id: int):
+        DeleteTopic(self._repository).execute(
+            user_id,
+            topic_id
+        )

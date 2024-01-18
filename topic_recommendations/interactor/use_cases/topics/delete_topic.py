@@ -7,7 +7,7 @@ class DeleteTopic(UseCase):
     def __init__(self, repository: ITopicsRepository):
         self._repository = repository
 
-    def execute(self, topic_id: int):
-        result = self._repository.delete(topic_id)
+    def execute(self, user_id: int, topic_id: int):
+        result = self._repository.delete(user_id, topic_id)
         if not result:
             raise DoesNotExist(f'Topic {topic_id} does not exist')

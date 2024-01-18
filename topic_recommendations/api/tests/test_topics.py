@@ -1,4 +1,5 @@
 from topic_recommendations.api.tests.base import HttpTestCase
+from topic_recommendations.api.tests.decorators import with_another_user
 from topic_recommendations.infra.db.models import Topic
 
 
@@ -165,3 +166,18 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(second_root_topic_id, self.get_data_from_response(response, 'topics.1.id'))
         self.assertEqual(child_topic_id, self.get_data_from_response(response, 'topics.0.sub_topics.0.id'))
 
+    @with_another_user()
+    async def test_user_should_not_be_able_to_delete_another_user_topic(self):
+        # creating topic as main user
+        await self._create_topic()
+
+        # logging in as another user
+        self.login(self.other_user_id)
+        response = await self.delete('/topics/1')
+        self.assertEqual(404, response.status_code)
+        self.assertEqual('Topic 1 does not exist', self.get_data_from_response(response, 'detail'))
+
+        # logging back in as main user
+        self.login()
+        response = await self.delete('/topics/1')
+        self.assertEqual(204, response.status_code)
