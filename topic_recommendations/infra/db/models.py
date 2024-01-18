@@ -12,6 +12,7 @@ class User(Model):
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     name = Column('name', String, nullable=False)
     password = Column('password', String, nullable=False)
+    admin = Column('admin', Boolean, default=False)
 
     topic_creations = relationship('Topic', back_populates='user', cascade='all, delete-orphan')
     item_creations = relationship('Item', back_populates='user', cascade='all, delete-orphan')
