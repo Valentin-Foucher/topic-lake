@@ -18,7 +18,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def delete(self, item_id: int):
+    def delete(self, user_id: int, item_id: int) -> bool:
         pass
 
     @abstractmethod

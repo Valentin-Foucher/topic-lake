@@ -1,6 +1,7 @@
 from sqlalchemy import select
 
 from topic_recommendations.api.tests.base import HttpTestCase
+from topic_recommendations.api.tests.decorators import with_another_user
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import Item, Topic
 
@@ -130,3 +131,20 @@ class ItemsTestCase(HttpTestCase):
         self.assertEqual(3, self.get_data_from_response(response, 'items.2.rank'))
         self.assertEqual(1, self.get_data_from_response(response, 'items.3.rank'))
         self.assertEqual(5, self.get_data_from_response(response, 'items.4.rank'))
+
+    @with_another_user()
+    async def test_user_should_not_be_able_to_delete_another_user_topic(self):
+        # creating item as main user
+        response = await self._create_item()
+        item_id = self.get_data_from_response(response, 'id')
+
+        # logging in as another user
+        self.login(self.other_user_id)
+        response = await self.delete(f'/topics/1/items/{item_id}')
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(f'Item {item_id} does not exist', self.get_data_from_response(response, 'detail'))
+
+        # logging back in as main user
+        self.login()
+        response = await self.delete(f'/topics/1/items/{item_id}')
+        self.assertEqual(204, response.status_code)

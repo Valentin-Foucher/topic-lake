@@ -7,7 +7,7 @@ class DeleteItem(UseCase):
     def __init__(self, repository: IItemsRepository):
         self._repository = repository
 
-    def execute(self, item_id: int):
-        result = self._repository.delete(item_id)
+    def execute(self, user_id: int, item_id: int):
+        result = self._repository.delete(user_id, item_id)
         if not result:
             raise DoesNotExist(f'Item {item_id} does not exist')

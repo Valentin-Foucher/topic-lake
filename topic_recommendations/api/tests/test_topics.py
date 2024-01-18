@@ -169,15 +169,16 @@ class TopicsTestCase(HttpTestCase):
     @with_another_user()
     async def test_user_should_not_be_able_to_delete_another_user_topic(self):
         # creating topic as main user
-        await self._create_topic()
+        response = await self._create_topic()
+        topic_id = self.get_data_from_response(response, 'id')
 
         # logging in as another user
         self.login(self.other_user_id)
-        response = await self.delete('/topics/1')
+        response = await self.delete(f'/topics/{topic_id}')
         self.assertEqual(404, response.status_code)
-        self.assertEqual('Topic 1 does not exist', self.get_data_from_response(response, 'detail'))
+        self.assertEqual(f'Topic {topic_id} does not exist', self.get_data_from_response(response, 'detail'))
 
         # logging back in as main user
         self.login()
-        response = await self.delete('/topics/1')
+        response = await self.delete(f'/topics/{topic_id}')
         self.assertEqual(204, response.status_code)

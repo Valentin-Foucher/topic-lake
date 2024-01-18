@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from starlette import status
+from starlette.requests import Request
 
 from topic_recommendations.api.dependencies import ListItemsPresenterDependency, ItemsRepositoryDependency, \
     GetItemPresenterDependency, CreateItemPresenterDependency, TopicsRepositoryDependency, UsersRepositoryDependency, \
@@ -42,5 +43,8 @@ async def get_item(item_id: int, presenter: GetItemPresenterDependency, items_re
 
 
 @router.delete('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_item(item_id: int, items_repository: ItemsRepositoryDependency):
-    DeleteItemController(items_repository).execute(item_id)
+async def delete_item(request: Request, item_id: int, items_repository: ItemsRepositoryDependency):
+    DeleteItemController(items_repository).execute(
+        request.user.id,
+        item_id
+    )
