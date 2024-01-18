@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "topic-recommendations"
+name = "topic-lake-api"
 version = "0.1.0"
 description = ""
 authors = ["Valentin <valentin.foucher@free.fr>"]
 readme = "README.md"
-packages = [{include = "topic_recommendations"}]
+packages = [{include = "topic_lake_api"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"

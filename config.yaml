@@ -1,6 +1,6 @@
 postgres:
-  connection_string: !ENV ${POSTGRES_TOPIC_RECOMMENDATIONS_CONNECTION_STRING}
+  connection_string: !ENV ${TOPIC_LAKE_API_POSTGRES_CONNECTION_STRING}
 
 jwt:
   algorithm: HS256
-  secret_key: !ENV ${TOPIC_RECOMMENDATIONS_JWT_SECRET_KEY}
+  secret_key: !ENV ${TOPIC_LAKE_API_JWT_SECRET_KEY}

@@ -21,7 +21,7 @@ lock-dependencies:
 
 #: Start the API on port 8000
 run:
-	poetry env use 3.10; poetry run python topic_recommendations/api/main.py
+	poetry env use 3.10; poetry run python topic_lake_api/api/main.py
 
 #: Start test docker compose
 start-docker:
@@ -37,4 +37,4 @@ tests:
 
 #: Show coverage
 coverage:
-	poetry env use 3.10; poetry run pytest --cov=topic_recommendations
+	poetry env use 3.10; poetry run pytest --cov=topic_lake_api
