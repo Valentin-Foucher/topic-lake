@@ -8,6 +8,7 @@ class Item(BaseModel):
     content: str
     topic_content: str
     user_name: str
+    rank: int
 
 
 class CreateItemRequest(BaseModel):

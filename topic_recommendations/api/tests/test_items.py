@@ -115,3 +115,18 @@ class ItemsTestCase(HttpTestCase):
             .limit(1)
         )
         self.assertEqual(0, len(item_query.all()))
+
+    async def test_create_many_items(self):
+        await self._create_item()
+        await self._create_item(rank=1)
+        await self._create_item(rank=2)
+        await self._create_item(rank=1)
+        await self._create_item(rank=140)
+
+        response = await self.get('/topics/1/items')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(4, self.get_data_from_response(response, 'items.0.rank'))
+        self.assertEqual(2, self.get_data_from_response(response, 'items.1.rank'))
+        self.assertEqual(3, self.get_data_from_response(response, 'items.2.rank'))
+        self.assertEqual(1, self.get_data_from_response(response, 'items.3.rank'))
+        self.assertEqual(5, self.get_data_from_response(response, 'items.4.rank'))
