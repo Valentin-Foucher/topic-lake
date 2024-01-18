@@ -76,8 +76,8 @@ class HttpTestCase(IsolatedAsyncioTestCase):
         Model.metadata.drop_all(engine)
 
     @staticmethod
-    def _create_test_user(name='test_user', password='password123'):
-        u = User(name=name, password=hash_password(password))
+    def _create_test_user(name='test_user', password='password123', admin=False):
+        u = User(name=name, password=hash_password(password), admin=admin)
         session.add(u)
         session.commit()
         session.flush()

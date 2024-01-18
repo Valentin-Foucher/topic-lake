@@ -133,7 +133,7 @@ class ItemsTestCase(HttpTestCase):
         self.assertEqual(5, self.get_data_from_response(response, 'items.4.rank'))
 
     @with_another_user()
-    async def test_user_should_not_be_able_to_delete_another_user_topic(self):
+    async def test_user_should_not_be_able_to_delete_another_user_item(self):
         # creating item as main user
         response = await self._create_item()
         item_id = self.get_data_from_response(response, 'id')
@@ -146,5 +146,16 @@ class ItemsTestCase(HttpTestCase):
 
         # logging back in as main user
         self.login()
+        response = await self.delete(f'/topics/1/items/{item_id}')
+        self.assertEqual(204, response.status_code)
+
+    @with_another_user(admin=True)
+    async def test_admin_should_be_able_to_delete_another_user_item(self):
+        # creating item as main user
+        response = await self._create_item()
+        item_id = self.get_data_from_response(response, 'id')
+
+        # logging in as admin
+        self.login(self.other_user_id)
         response = await self.delete(f'/topics/1/items/{item_id}')
         self.assertEqual(204, response.status_code)

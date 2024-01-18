@@ -1,11 +1,12 @@
 from typing import Optional
 
-from sqlalchemy import select, update, and_, func
+from sqlalchemy import select, update, and_, func, or_, delete
 from sqlalchemy.exc import NoResultFound
 
 from topic_recommendations.domain.entities.items import Item
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import Item as ItemModel
+from topic_recommendations.infra.db.models import User as UserModel
 from topic_recommendations.interactor.interfaces.repositories.items import IItemsRepository
 
 
@@ -42,16 +43,22 @@ class ItemsRepository(IItemsRepository):
         return item.as_dataclass()
 
     def delete(self, user_id: int, item_id: int) -> bool:
-        deleted_rows = session.execute(
-            ItemModel.__table__.delete()
-            .where(
-                and_(
-                    ItemModel.user_id == user_id,
-                    ItemModel.id == item_id
-                )
-            )
-            .returning(ItemModel.id)
-        ).fetchall()
+        deleted_rows = \
+            session.execute(
+                delete(ItemModel).filter(
+                    and_(
+                        UserModel.id == user_id,
+                        or_(
+                            UserModel.admin.is_(True),
+                            and_(
+                                ItemModel.id == item_id,
+                                ItemModel.user_id == user_id
+                            )
+                        )
+                    )
+                ).returning(ItemModel.id)
+            ).fetchall()
+
         return len(deleted_rows) != 0
 
     def update_ranks_for_topic(self, topic_id: int, rank: int):

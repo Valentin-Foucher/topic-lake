@@ -182,3 +182,14 @@ class TopicsTestCase(HttpTestCase):
         self.login()
         response = await self.delete(f'/topics/{topic_id}')
         self.assertEqual(204, response.status_code)
+
+    @with_another_user(admin=True)
+    async def test_admin_should_be_able_to_delete_another_user_topic(self):
+        # creating topic as main user
+        response = await self._create_topic()
+        topic_id = self.get_data_from_response(response, 'id')
+
+        # logging in as admin
+        self.login(self.other_user_id)
+        response = await self.delete(f'/topics/{topic_id}')
+        self.assertEqual(204, response.status_code)

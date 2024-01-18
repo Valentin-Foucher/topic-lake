@@ -1,12 +1,13 @@
 from typing import Optional
 
-from sqlalchemy import select, null, literal, and_
+from sqlalchemy import select, null, literal, and_, or_, delete
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
 from topic_recommendations.domain.entities.topics import Topic
 from topic_recommendations.infra.db.core import session
 from topic_recommendations.infra.db.models import Topic as TopicModel
+from topic_recommendations.infra.db.models import User as UserModel
 from topic_recommendations.interactor.interfaces.repositories.topics import ITopicsRepository
 
 
@@ -61,14 +62,20 @@ class TopicsRepository(ITopicsRepository):
         return topic.as_dataclass()
 
     def delete(self, user_id: int, topic_id: int) -> bool:
-        deleted_rows = session.execute(
-            TopicModel.__table__.delete()
-            .where(
-                and_(
-                    TopicModel.id == topic_id,
-                    TopicModel.user_id == user_id
-                )
-            )
-            .returning(TopicModel.id)
-        ).fetchall()
+        deleted_rows = \
+            session.execute(
+                delete(TopicModel).filter(
+                    and_(
+                        UserModel.id == user_id,
+                        or_(
+                            UserModel.admin.is_(True),
+                            and_(
+                                TopicModel.id == topic_id,
+                                TopicModel.user_id == user_id
+                            )
+                        )
+                    )
+                ).returning(TopicModel.id)
+            ).fetchall()
+
         return len(deleted_rows) != 0
