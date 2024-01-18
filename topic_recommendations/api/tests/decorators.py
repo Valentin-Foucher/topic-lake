@@ -3,7 +3,7 @@ from functools import wraps
 from topic_recommendations.infra.db.core import session
 
 
-def with_another_user(name='test_user', password='password123'):
+def with_another_user(name='other_user', password='password123'):
     def decorator(f):
         @wraps(f)
         async def wrapper(self, *args, **kwargs):

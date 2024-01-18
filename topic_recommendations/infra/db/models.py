@@ -10,7 +10,7 @@ class User(Model):
     __tablename__ = 'users'
 
     id = Column('id', Integer, autoincrement=True, primary_key=True)
-    name = Column('name', String, nullable=False)
+    name = Column('name', String, nullable=False, unique=True)
     password = Column('password', String, nullable=False)
     admin = Column('admin', Boolean, default=False)
 
