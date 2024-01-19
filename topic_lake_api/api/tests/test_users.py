@@ -41,11 +41,23 @@ class UsersTestCase(HttpTestCase):
         await self._create_user(name=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
+        await self._create_user(name='a' * 3,
+                                status_code=422,
+                                error_message='String should have at least 4 characters')
+        await self._create_user(name='a' * 65,
+                                status_code=422,
+                                error_message='String should have at most 64 characters')
 
     async def test_create_with_invalid_password(self):
         await self._create_user(password=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
+        await self._create_user(password='a' * 7,
+                                status_code=422,
+                                error_message='String should have at least 8 characters')
+        await self._create_user(password='a' * 65,
+                                status_code=422,
+                                error_message='String should have at most 64 characters')
 
     async def test_create_user(self):
         await self._create_user()
