@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.exceptions import RequestValidationError
 from starlette import status
 from starlette.responses import JSONResponse
@@ -45,11 +45,21 @@ def add_error_handlers(app: FastAPI):
     app.add_exception_handler(RequestValidationError, _fastapi_request_validation_error_handler)
 
 
-def add_routers(app: FastAPI):
-    app.include_router(connection_router)
-    app.include_router(items_router)
-    app.include_router(topics_router)
-    app.include_router(users_router)
+def add_routers(app: FastAPI, api_version: int):
+    match api_version:
+        case 1:
+            add_v1_router(app)
+        case _:
+            raise InternalException('Invalid API version')
+
+
+def add_v1_router(app: FastAPI):
+    main_router = APIRouter(prefix='/api/v1')
+    main_router.include_router(connection_router)
+    main_router.include_router(items_router)
+    main_router.include_router(topics_router)
+    main_router.include_router(users_router)
+    app.include_router(main_router)
 
 
 @asynccontextmanager

@@ -13,7 +13,7 @@ class ConnectionTestCase(HttpTestCase):
         AccessToken.query.delete()
 
     async def _login(self, status_code=200, error_message='', **overriding_dict):
-        response = await self.post('/login', {
+        response = await self.post('/api/v1/login', {
             'username': 'test_user',
             'password': 'password123',
             **overriding_dict
@@ -35,7 +35,7 @@ class ConnectionTestCase(HttpTestCase):
         return response
 
     async def _logout(self, status_code=200, error_message=''):
-        response = await self.post('/logout', {})
+        response = await self.post('/api/v1/logout', {})
 
         self.assertEqual(status_code, response.status_code)
 

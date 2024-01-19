@@ -12,7 +12,7 @@ class UsersTestCase(HttpTestCase):
         )
 
     async def _create_user(self, status_code=201, error_message='', **overriding_dict):
-        response = await self.post('/users', {
+        response = await self.post('/api/v1/users', {
             'name': 'user',
             'password': 'password123',
             **overriding_dict
@@ -55,6 +55,6 @@ class UsersTestCase(HttpTestCase):
         inserted_id = self.get_data_from_response(response, 'id')
         self.login(inserted_id)
 
-        response = await self.get('/users/self')
+        response = await self.get('/api/v1/users/self')
         self.assertEqual(200, response.status_code)
         self._assert_user(self.get_data_from_response(response, 'user'))

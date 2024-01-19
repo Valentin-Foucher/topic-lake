@@ -16,7 +16,7 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-add_routers(app)
+add_routers(app, api_version=1)
 add_error_handlers(app)
 
 

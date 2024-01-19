@@ -9,7 +9,7 @@ class TopicsTestCase(HttpTestCase):
         Topic.query.delete()
 
     async def _create_topic(self, status_code=201, error_message='', **overriding_dict):
-        response = await self.post('/topics', {
+        response = await self.post('/api/v1/topics', {
             'content': 'Holiday destinations',
             'user_id': 1,
             **overriding_dict
@@ -58,7 +58,7 @@ class TopicsTestCase(HttpTestCase):
         await self._create_topic()
 
     async def test_get_unknown_topic(self):
-        response = await self.get('/topics/123456')
+        response = await self.get('/api/v1/topics/123456')
         self.assertEqual(404, response.status_code)
         self.assertEqual('Topic 123456 does not exist', self.get_data_from_response(response, 'detail'))
 
@@ -66,35 +66,35 @@ class TopicsTestCase(HttpTestCase):
         response = await self._create_topic()
         inserted_it = self.get_data_from_response(response, 'id')
 
-        response = await self.get(f'/topics/{inserted_it}')
+        response = await self.get(f'/api/v1/topics/{inserted_it}')
         self.assertEqual(200, response.status_code)
         self._assert_topic(self.get_data_from_response(response, 'topic'))
 
     async def test_delete_topic(self):
-        response = await self.delete('/topics/1')
+        response = await self.delete('/api/v1/topics/1')
         self.assertEqual(404, response.status_code)
         self.assertEqual('Topic 1 does not exist', self.get_data_from_response(response, 'detail'))
 
         response = await self._create_topic()
         inserted_it = self.get_data_from_response(response, 'id')
-        response = await self.delete(f'/topics/{inserted_it}')
+        response = await self.delete(f'/api/v1/topics/{inserted_it}')
         self.assertEqual(204, response.status_code)
 
-        response = await self.get('/topics/1')
+        response = await self.get('/api/v1/topics/1')
         self.assertEqual(404, response.status_code)
 
     async def test_list_topics(self):
-        response = await self.get('/topics')
+        response = await self.get('/api/v1/topics')
         self.assertEqual(0, len(self.get_data_from_response(response, 'topics')))
 
         response = await self._create_topic()
         self.assertEqual(201, response.status_code)
-        response = await self.get('/topics')
+        response = await self.get('/api/v1/topics')
         self.assertEqual(1, len(self.get_data_from_response(response, 'topics')))
 
         response = await self._create_topic()
         self.assertEqual(201, response.status_code)
-        response = await self.get('/topics')
+        response = await self.get('/api/v1/topics')
         self.assertEqual(2, len(self.get_data_from_response(response, 'topics')))
 
     async def test_create_sub_topic(self):
@@ -121,19 +121,19 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(201, response.status_code)
         first_great_child_id = self.get_data_from_response(response, 'id')
 
-        response = await self.get(f'/topics/{parent_id}')
+        response = await self.get(f'/api/v1/topics/{parent_id}')
         self.assertEqual(200, response.status_code)
         self.assertIsNone(self.get_data_from_response(response, 'topic.parent_topic_id'))
 
-        response = await self.get(f'/topics/{first_child_id}')
+        response = await self.get(f'/api/v1/topics/{first_child_id}')
         self.assertEqual(200, response.status_code)
         self.assertEqual(parent_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
 
-        response = await self.get(f'/topics/{second_child_id}')
+        response = await self.get(f'/api/v1/topics/{second_child_id}')
         self.assertEqual(200, response.status_code)
         self.assertEqual(parent_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
 
-        response = await self.get(f'/topics/{first_great_child_id}')
+        response = await self.get(f'/api/v1/topics/{first_great_child_id}')
         self.assertEqual(200, response.status_code)
         self.assertEqual(first_child_id, self.get_data_from_response(response, 'topic.parent_topic_id'))
 
@@ -156,7 +156,7 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(201, response.status_code)
         child_topic_id = self.get_data_from_response(response, 'id')
 
-        response = await self.get('/topics')
+        response = await self.get('/api/v1/topics')
         self.assertEqual(200, response.status_code)
 
         self._assert_topic(self.get_data_from_response(response, 'topics.0'))
@@ -174,13 +174,13 @@ class TopicsTestCase(HttpTestCase):
 
         # logging in as another user
         self.login(self.other_user_id)
-        response = await self.delete(f'/topics/{topic_id}')
+        response = await self.delete(f'/api/v1/topics/{topic_id}')
         self.assertEqual(404, response.status_code)
         self.assertEqual(f'Topic {topic_id} does not exist', self.get_data_from_response(response, 'detail'))
 
         # logging back in as main user
         self.login()
-        response = await self.delete(f'/topics/{topic_id}')
+        response = await self.delete(f'/api/v1/topics/{topic_id}')
         self.assertEqual(204, response.status_code)
 
     @with_another_user(admin=True)
@@ -191,5 +191,5 @@ class TopicsTestCase(HttpTestCase):
 
         # logging in as admin
         self.login(self.other_user_id)
-        response = await self.delete(f'/topics/{topic_id}')
+        response = await self.delete(f'/api/v1/topics/{topic_id}')
         self.assertEqual(204, response.status_code)
