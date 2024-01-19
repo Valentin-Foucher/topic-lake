@@ -35,7 +35,11 @@ def _application_exception_handler(_, exc: ApplicationException) -> JSONResponse
 def _fastapi_request_validation_error_handler(_, exc: RequestValidationError) -> JSONResponse:
     logger.error(str(exc))
     return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={
-        'detail': [{'message': err['msg'], 'field': err['loc'][-1], 'value': err['input']} for err in exc.errors()]
+        'detail': [{
+            'message': err['msg'],
+            'field': err['loc'][-1],
+            'value': err['input'].decode('utf-8') if isinstance(err['input'], bytes) else err['input']
+        } for err in exc.errors()]
     })
 
 
