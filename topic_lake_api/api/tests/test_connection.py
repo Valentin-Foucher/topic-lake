@@ -50,8 +50,8 @@ class ConnectionTestCase(HttpTestCase):
                           error_message='Input should be a valid string')
 
         await self._login(username='not_existent',
-                          status_code=404,
-                          error_message='User "not_existent" does not exist')
+                          status_code=400,
+                          error_message='Invalid credentials')
 
     async def test_login_with_invalid_password(self):
         await self._login(password=111,
@@ -60,7 +60,7 @@ class ConnectionTestCase(HttpTestCase):
 
         await self._login(password='not_the_correct_password',
                           status_code=400,
-                          error_message='Password is incorrect')
+                          error_message='Invalid credentials')
 
     async def test_login(self):
         await self._login()

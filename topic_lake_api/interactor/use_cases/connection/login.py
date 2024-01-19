@@ -1,4 +1,4 @@
-from topic_lake_api.interactor.exceptions import DoesNotExist, InvalidInputData
+from topic_lake_api.interactor.exceptions import InvalidInputData
 from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
@@ -12,11 +12,8 @@ class LogIn(UseCase):
 
     def execute(self, name: str, password: str):
         user = self._users_repository.get_by_name(name)
-        if not user:
-            raise DoesNotExist(f'User "{name}" does not exist')
-
-        if not check_password(user.password, password):
-            raise InvalidInputData('Password is incorrect')
+        if not (user and check_password(user.password, password)):
+            raise InvalidInputData('Invalid credentials')
 
         return \
             self._access_tokens_repository.get_latest(user.id) or \
