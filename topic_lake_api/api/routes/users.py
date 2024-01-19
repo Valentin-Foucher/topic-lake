@@ -18,7 +18,7 @@ router = APIRouter(
 async def create_user(user: CreateUserRequest, presenter: CreateUserPresenterDependency,
                       users_repository: UsersRepositoryDependency):
     return CreateUserController(presenter, users_repository).execute(
-        user.name,
+        user.username,
         user.password
     )
 

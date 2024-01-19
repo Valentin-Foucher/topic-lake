@@ -13,7 +13,7 @@ class UsersTestCase(HttpTestCase):
 
     async def _create_user(self, status_code=201, error_message='', **overriding_dict):
         response = await self.post('/api/v1/users', {
-            'name': 'user',
+            'username': 'user',
             'password': 'password123',
             **overriding_dict
         },
@@ -37,14 +37,14 @@ class UsersTestCase(HttpTestCase):
         self.assertEqual('user', user['name'])
         self.assertNotIn('password', user)
 
-    async def test_create_with_invalid_name(self):
-        await self._create_user(name=111,
+    async def test_create_with_invalid_username(self):
+        await self._create_user(username=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
-        await self._create_user(name='a' * 3,
+        await self._create_user(username='a' * 3,
                                 status_code=422,
                                 error_message='String should have at least 4 characters')
-        await self._create_user(name='a' * 65,
+        await self._create_user(username='a' * 65,
                                 status_code=422,
                                 error_message='String should have at most 64 characters')
 
