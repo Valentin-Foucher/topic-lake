@@ -32,6 +32,8 @@ class Topic(Model):
     user = relationship('User', back_populates='topic_creations')
     item_creations = relationship('Item', back_populates='topic', cascade='all, delete-orphan')
 
+    __table_args__ = (UniqueConstraint('content', 'parent_topic_id'),)
+
 
 class Item(Model):
     __tablename__ = 'items'
