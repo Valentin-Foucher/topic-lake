@@ -24,11 +24,11 @@ async def list_topics(presenter: ListTopicsPresenterDependency, topics_repositor
 
 
 @router.post('', status_code=status.HTTP_201_CREATED, response_model=CreateTopicResponse)
-async def create_topic(topic: CreateTopicRequest, presenter: CreateTopicPresenterDependency,
+async def create_topic(request: Request, topic: CreateTopicRequest, presenter: CreateTopicPresenterDependency,
                        topics_repository: TopicsRepositoryDependency,
                        users_repository: UsersRepositoryDependency):
     return CreateTopicController(presenter, topics_repository, users_repository).execute(
-        topic.user_id,
+        request.user.id,
         topic.parent_topic_id,
         topic.content
     )
@@ -41,8 +41,9 @@ async def get_topic(topic_id: int, presenter: GetTopicPresenterDependency,
 
 
 @router.delete('/{topic_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_topic(request: Request, topic_id: int, topics_repository: TopicsRepositoryDependency):
-    DeleteTopicController(topics_repository).execute(
+async def delete_topic(request: Request, topic_id: int, topics_repository: TopicsRepositoryDependency,
+                       users_repository: UsersRepositoryDependency):
+    DeleteTopicController(topics_repository, users_repository).execute(
         request.user.id,
         topic_id
     )

@@ -12,5 +12,7 @@ def status_code_from_application_exception(exc: ApplicationException) -> int:
             return status.HTTP_404_NOT_FOUND
         case ApplicationExceptionReason.INVALID_INPUT:
             return status.HTTP_400_BAD_REQUEST
+        case ApplicationExceptionReason.FORBIDDEN_ACTION:
+            return status.HTTP_403_FORBIDDEN
         case _:
             return status.HTTP_500_INTERNAL_SERVER_ERROR

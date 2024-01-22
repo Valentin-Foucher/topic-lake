@@ -21,6 +21,7 @@ class HttpTestCase(IsolatedAsyncioTestCase):
     _client: AsyncClient
     token: str
     other_user_id: int
+    user_id: int
 
     @classmethod
     def setUpClass(cls):
@@ -91,6 +92,7 @@ class HttpTestCase(IsolatedAsyncioTestCase):
 
     def login(self, user_id=1):
         self.token = encode_jwt(user_id)
+        self.user_id = user_id
         token = AccessToken(value=self.token, user_id=user_id)
         session.add(token)
         session.commit()

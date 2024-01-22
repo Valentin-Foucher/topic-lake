@@ -25,7 +25,7 @@ class Topic(Model):
     id = Column('id', Integer, autoincrement=True, primary_key=True)
     content = Column('content', String, nullable=False)
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
-    parent_topic_id = mapped_column(ForeignKey('topics.id'))
+    parent_topic_id = mapped_column(ForeignKey('topics.id', ondelete='CASCADE'))
 
     sub_topics = relationship('Topic', back_populates='parent_topic', cascade='all, delete-orphan')
     parent_topic = relationship('Topic', remote_side=[id], back_populates='sub_topics')

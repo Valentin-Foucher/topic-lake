@@ -6,3 +6,4 @@ class User:
     id: int
     name: str
     password: str
+    admin: bool

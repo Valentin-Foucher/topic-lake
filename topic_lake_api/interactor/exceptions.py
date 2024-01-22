@@ -20,3 +20,8 @@ class DoesNotExist(ApplicationException):
 class InvalidInputData(ApplicationException):
     def __init__(self, message: str):
         super().__init__(ApplicationExceptionReason.INVALID_INPUT, message)
+
+
+class ForbiddenAction(ApplicationException):
+    def __init__(self, message: str):
+        super().__init__(ApplicationExceptionReason.FORBIDDEN_ACTION, message)

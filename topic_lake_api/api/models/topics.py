@@ -13,7 +13,6 @@ class Topic(BaseModel):
 
 class CreateTopicRequest(BaseModel):
     content: str
-    user_id: int
     parent_topic_id: Optional[int] = None
 
 

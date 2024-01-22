@@ -1,3 +1,5 @@
+import uuid
+
 from topic_lake_api.api.tests.base import HttpTestCase
 from topic_lake_api.api.tests.decorators import with_another_user
 from topic_lake_api.infra.db.models import Topic
@@ -10,8 +12,7 @@ class TopicsTestCase(HttpTestCase):
 
     async def _create_topic(self, status_code=201, error_message='', **overriding_dict):
         response = await self.post('/api/v1/topics', {
-            'content': 'Holiday destinations',
-            'user_id': 1,
+            'content': uuid.uuid4().hex,
             **overriding_dict
         })
 
@@ -30,7 +31,7 @@ class TopicsTestCase(HttpTestCase):
 
     def _assert_topic(self, topic):
         self.assertIsInstance(topic['id'], int)
-        self.assertEqual('Holiday destinations', topic['content'])
+        self.assertIsInstance(topic['content'], str)
         self.assertEqual(1, topic['user_id'])
         if topic['parent_topic_id'] is not None:
             self.assertIsInstance(topic['parent_topic_id'], int)
@@ -40,14 +41,6 @@ class TopicsTestCase(HttpTestCase):
         await self._create_topic(content=111,
                                  status_code=422,
                                  error_message='Input should be a valid string')
-
-    async def test_create_with_invalid_user_id(self):
-        await self._create_topic(user_id='not a valid id',
-                                 status_code=422,
-                                 error_message='Input should be a valid integer, unable to parse string as an integer')
-        await self._create_topic(user_id=13,
-                                 status_code=404,
-                                 error_message='User 13 does not exist')
 
     async def test_create_topic_with_invalid_parent_id(self):
         await self._create_topic(parent_topic_id=123,
@@ -175,8 +168,9 @@ class TopicsTestCase(HttpTestCase):
         # logging in as another user
         self.login(self.other_user_id)
         response = await self.delete(f'/api/v1/topics/{topic_id}')
-        self.assertEqual(404, response.status_code)
-        self.assertEqual(f'Topic {topic_id} does not exist', self.get_data_from_response(response, 'detail'))
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(f'This topic hierarchy was not entirely created by user {self.other_user_id}',
+                         self.get_data_from_response(response, 'detail'))
 
         # logging back in as main user
         self.login()
@@ -193,3 +187,38 @@ class TopicsTestCase(HttpTestCase):
         self.login(self.other_user_id)
         response = await self.delete(f'/api/v1/topics/{topic_id}')
         self.assertEqual(204, response.status_code)
+
+    @with_another_user()
+    async def test_user_should_not_be_able_to_delete_another_user_topic_if_he_does_not_own_the_hierarchy(self):
+        # logging in as main user
+        response = await self._create_topic()
+        root_topic_id = self.get_data_from_response(response, 'id')
+
+        # logging in as another user
+        self.login(self.other_user_id)
+        await self._create_topic(parent_topic_id=root_topic_id)
+
+        # logging in back as main user
+        self.login()
+        response = await self.delete(f'/api/v1/topics/{root_topic_id}')
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(f'This topic hierarchy was not entirely created by user {self.user_id}',
+                         self.get_data_from_response(response, 'detail'))
+
+    @with_another_user(admin=True)
+    async def test_admin_should_not_be_able_to_delete_another_user_topic_even_if_he_does_not_own_the_hierarchy(self):
+        # logging in as admin
+        self.login(self.other_user_id)
+        response = await self._create_topic()
+        root_topic_id = self.get_data_from_response(response, 'id')
+
+        # logging in as main user
+        self.login()
+        await self._create_topic(parent_topic_id=root_topic_id)
+
+        # logging in back as admin
+        self.login(self.other_user_id)
+        response = await self.delete(f'/api/v1/topics/{root_topic_id}')
+        self.assertEqual(204, response.status_code)
+
+
