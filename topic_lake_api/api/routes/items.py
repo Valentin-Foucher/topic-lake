@@ -25,13 +25,14 @@ async def list_items(topic_id: int, presenter: ListItemsPresenterDependency,
 
 
 @router.post('', status_code=status.HTTP_201_CREATED)
-async def create_item(topic_id: int, item: CreateItemRequest, presenter: CreateItemPresenterDependency,
+async def create_item(request: Request, topic_id: int, item: CreateItemRequest,
+                      presenter: CreateItemPresenterDependency,
                       items_repository: ItemsRepositoryDependency,
                       topics_repository: TopicsRepositoryDependency,
                       users_repository: UsersRepositoryDependency):
     return CreateItemController(presenter, items_repository, topics_repository, users_repository).execute(
         topic_id,
-        item.user_id,
+        request.user.id,
         item.content,
         item.rank
     )

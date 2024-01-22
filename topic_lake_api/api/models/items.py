@@ -13,7 +13,6 @@ class Item(BaseModel):
 
 class CreateItemRequest(BaseModel):
     content: str
-    user_id: int
     rank: int = Field(gt=0, default=sys.maxsize)
 
 

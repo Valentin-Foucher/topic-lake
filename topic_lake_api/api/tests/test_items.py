@@ -20,7 +20,6 @@ class ItemsTestCase(HttpTestCase):
     async def _create_item(self, status_code=201, error_message='', topic_id=1, **overriding_dict):
         response = await self.post(f'/api/v1/topics/{topic_id}/items', {
             'content': 'Ibiza',
-            'user_id': 1,
             **overriding_dict
         })
 
@@ -47,14 +46,6 @@ class ItemsTestCase(HttpTestCase):
         await self._create_item(content=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
-
-    async def test_create_with_invalid_user_id(self):
-        await self._create_item(user_id='not a valid id',
-                                status_code=422,
-                                error_message='Input should be a valid integer, unable to parse string as an integer')
-        await self._create_item(user_id=13,
-                                status_code=404,
-                                error_message='User 13 does not exist')
 
     async def test_create_item(self):
         await self._create_item()
