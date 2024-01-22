@@ -15,6 +15,8 @@ class LogIn(UseCase):
         if not (user and check_password(user.password, password)):
             raise InvalidInputData('Invalid credentials')
 
-        return \
-            self._access_tokens_repository.get_latest(user.id) or \
-            self._access_tokens_repository.create(user.id)
+        return (
+            self._access_tokens_repository.get_latest(user.id) or
+            self._access_tokens_repository.create(user.id),
+            user.id
+        )

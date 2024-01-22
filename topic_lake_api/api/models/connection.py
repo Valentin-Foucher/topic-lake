@@ -8,4 +8,4 @@ class LogInRequest(BaseModel):
 
 class LogInResponse(BaseModel):
     token: str
-
+    user_id: int

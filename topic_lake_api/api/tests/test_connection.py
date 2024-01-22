@@ -22,8 +22,9 @@ class ConnectionTestCase(HttpTestCase):
 
         self.assertEqual(status_code, response.status_code)
         if status_code == 200:
-            token = self.get_data_from_response(response, 'token')
-            self.assertIsInstance(token, str)
+            data = response.json()
+            self.assertIsInstance(data['token'], str)
+            self.assertIsInstance(data['user_id'], int)
         elif status_code == 422:
             field, value = next(iter(overriding_dict.items()))
             self.validate_input_validation_error(response, {
