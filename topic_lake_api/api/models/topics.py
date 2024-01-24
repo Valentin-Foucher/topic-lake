@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Topic(BaseModel):
@@ -12,7 +12,7 @@ class Topic(BaseModel):
 
 
 class CreateTopicRequest(BaseModel):
-    content: str
+    content: str = Field(min_length=4, max_length=256)
     parent_topic_id: Optional[int] = None
 
 
@@ -29,5 +29,5 @@ class ListTopicsResponse(BaseModel):
 
 
 class UpdateTopicRequest(BaseModel):
-    content: str
+    content: str = Field(min_length=4, max_length=256)
     parent_topic_id: Optional[int]

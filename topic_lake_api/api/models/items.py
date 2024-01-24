@@ -12,7 +12,7 @@ class Item(BaseModel):
 
 
 class CreateItemRequest(BaseModel):
-    content: str
+    content: str = Field(min_length=4, max_length=256)
     rank: int = Field(gt=0, default=sys.maxsize)
 
 

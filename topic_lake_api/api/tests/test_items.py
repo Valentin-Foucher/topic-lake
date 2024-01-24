@@ -46,6 +46,12 @@ class ItemsTestCase(HttpTestCase):
         await self._create_item(content=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
+        await self._create_item(content='a',
+                                status_code=422,
+                                error_message='String should have at least 4 characters')
+        await self._create_item(content='a' * 257,
+                                status_code=422,
+                                error_message='String should have at most 256 characters')
 
     async def test_create_item(self):
         await self._create_item()
