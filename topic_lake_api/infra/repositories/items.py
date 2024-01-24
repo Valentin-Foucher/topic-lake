@@ -54,19 +54,18 @@ class ItemsRepository(IItemsRepository):
             session.execute(
                 delete(ItemModel).filter(
                     and_(
-                        UserModel.id == user_id,
+                        ItemModel.id == item_id,
                         or_(
                             UserModel.admin.is_(True),
-                            and_(
-                                ItemModel.id == item_id,
-                                ItemModel.user_id == user_id
-                            )
+                            ItemModel.user_id == user_id
                         )
                     )
                 ).returning(ItemModel.id)
             ).fetchall()
 
-        return len(deleted_rows) != 0
+        result = len(deleted_rows) != 0
+        session.commit()
+        return result
 
     def update_ranks_for_topic(self, topic_id: int, rank: int):
         session.execute(

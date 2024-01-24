@@ -71,19 +71,18 @@ class TopicsRepository(ITopicsRepository):
             session.execute(
                 delete(TopicModel).filter(
                     and_(
-                        UserModel.id == user_id,
+                        TopicModel.id == topic_id,
                         or_(
                             UserModel.admin.is_(True),
-                            and_(
-                                TopicModel.id == topic_id,
-                                TopicModel.user_id == user_id
-                            )
+                            TopicModel.user_id == user_id
                         )
                     )
                 ).returning(TopicModel.id)
             ).fetchall()
 
-        return len(deleted_rows) != 0
+        result = len(deleted_rows) != 0
+        session.commit()
+        return result
 
     def update(self, user_id: int, topic_id: int, parent_topic_id: Optional[int], content: str):
         session.execute(
