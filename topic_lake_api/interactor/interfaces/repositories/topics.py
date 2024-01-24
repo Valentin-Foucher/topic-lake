@@ -21,3 +21,7 @@ class ITopicsRepository(Repository, ABC):
     @abstractmethod
     def delete(self, user_id: int, topic_id: int) -> bool:
         pass
+
+    @abstractmethod
+    def update(self, user_id: int, topic_id: int, parent_topic_id: Optional[int], content: str):
+        pass

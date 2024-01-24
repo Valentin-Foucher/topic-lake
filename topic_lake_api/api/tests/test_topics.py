@@ -221,4 +221,45 @@ class TopicsTestCase(HttpTestCase):
         response = await self.delete(f'/api/v1/topics/{root_topic_id}')
         self.assertEqual(204, response.status_code)
 
+    @with_another_user()
+    async def test_update_topic_belonging_to_another_user(self):
+        response = await self._create_topic()
+        topic_to_update_id = self.get_data_from_response(response, 'id')
 
+        self.login(self.other_user_id)
+        response = await self.put(f'/api/v1/topics/{topic_to_update_id}', {
+            'content': 'new content',
+            'parent_topic_id': None
+        })
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(f'This topic is not owned by user {self.other_user_id}', self.get_data_from_response(response, 'detail'))
+
+    async def test_update_topic_with_invalid_parent_topic_id(self):
+        response = await self._create_topic()
+        topic_to_update_id = self.get_data_from_response(response, 'id')
+
+        response = await self.put(f'/api/v1/topics/{topic_to_update_id}', {
+            'content': 'new content',
+            'parent_topic_id': 123456
+        })
+        self.assertEqual(404, response.status_code)
+        self.assertEqual('Topic 123456 does not exist', self.get_data_from_response(response, 'detail'))
+
+    async def test_update_topic(self):
+        response = await self._create_topic()
+        topic_to_update_id = self.get_data_from_response(response, 'id')
+        response = await self._create_topic()
+        parent_topic_id = self.get_data_from_response(response, 'id')
+
+        response = await self.put(f'/api/v1/topics/{topic_to_update_id}', {
+            'content': 'new content',
+            'parent_topic_id': parent_topic_id
+        })
+        self.assertEqual(204, response.status_code)
+
+        response = await self.get(f'/api/v1/topics/{topic_to_update_id}')
+        topic = self.get_data_from_response(response, 'topic')
+        self.assertEqual('new content', topic['content'])
+        self.assertEqual(1, topic['user_id'])
+        self.assertEqual(parent_topic_id, topic['parent_topic_id'])
+        self.assertEqual([], topic['sub_topics'])

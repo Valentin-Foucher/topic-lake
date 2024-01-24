@@ -26,3 +26,8 @@ class GetTopicResponse(BaseModel):
 
 class ListTopicsResponse(BaseModel):
     topics: list[Topic]
+
+
+class UpdateTopicRequest(BaseModel):
+    content: str
+    parent_topic_id: Optional[int]

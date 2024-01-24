@@ -5,11 +5,12 @@ from starlette.requests import Request
 from topic_lake_api.api.dependencies import ListTopicsPresenterDependency, TopicsRepositoryDependency, \
     GetTopicPresenterDependency, UsersRepositoryDependency, CreateTopicPresenterDependency, AuthenticationDependency
 from topic_lake_api.api.models.topics import CreateTopicRequest, GetTopicResponse, ListTopicsResponse, \
-    CreateTopicResponse
+    CreateTopicResponse, UpdateTopicRequest
 from topic_lake_api.app.controllers.topics.create import CreateTopicController
 from topic_lake_api.app.controllers.topics.delete import DeleteTopicController
 from topic_lake_api.app.controllers.topics.get import GetTopicController
 from topic_lake_api.app.controllers.topics.list import ListTopicsController
+from topic_lake_api.app.controllers.topics.update import UpdateTopicController
 
 router = APIRouter(
     prefix='/topics',
@@ -46,4 +47,15 @@ async def delete_topic(request: Request, topic_id: int, topics_repository: Topic
     DeleteTopicController(topics_repository, users_repository).execute(
         request.user.id,
         topic_id
+    )
+
+
+@router.put('/{topic_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def update_topic(request: Request, topic_id: int, topic: UpdateTopicRequest,
+                       topics_repository: TopicsRepositoryDependency):
+    return UpdateTopicController(topics_repository).execute(
+        request.user.id,
+        topic_id,
+        topic.parent_topic_id,
+        topic.content
     )

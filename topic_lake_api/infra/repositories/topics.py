@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, null, literal, and_, or_, delete
+from sqlalchemy import select, null, literal, and_, or_, delete, update
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
@@ -79,3 +79,13 @@ class TopicsRepository(ITopicsRepository):
             ).fetchall()
 
         return len(deleted_rows) != 0
+
+    def update(self, user_id: int, topic_id: int, parent_topic_id: Optional[int], content: str):
+        session.execute(
+            update(TopicModel).filter(
+                and_(
+                    TopicModel.user_id == user_id,
+                    TopicModel.id == topic_id
+                    )
+            ).values(content=content, parent_topic_id=parent_topic_id)
+        )
