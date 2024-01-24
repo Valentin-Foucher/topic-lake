@@ -26,8 +26,15 @@ class AccessTokensRepository(IAccessTokensRepository):
     def create(self, user_id: int) -> str:
         token_value = encode_jwt(user_id)
         t = AccessToken(value=token_value, user_id=user_id)
-        session.add(t)
-        session.commit()
+        try:
+            session.add(t)
+            session.flush()
+        except:
+            session.rollback()
+            raise
+        else:
+            session.commit()
+
         return token_value
 
     def get_latest(self, user_id: int) -> Optional[str]:

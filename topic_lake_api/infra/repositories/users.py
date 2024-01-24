@@ -12,9 +12,18 @@ from topic_lake_api.interactor.interfaces.repositories.users import IUsersReposi
 class UsersRepository(IUsersRepository):
     def create(self, name: str, hashed_password: str) -> int:
         u = UserModel(name=name, password=hashed_password)
-        session.add(u)
-        session.flush()
-        session.commit()
+
+        # TODO -> rework session handling
+        try:
+            session.add(u)
+            session.flush()
+        except:
+            session.rollback()
+            raise
+        else:
+            session.flush()
+            session.commit()
+
         return u.id
 
     def get(self, user_id: int) -> Optional[User]:

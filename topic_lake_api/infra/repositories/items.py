@@ -25,9 +25,16 @@ class ItemsRepository(IItemsRepository):
                       user_id=user_id,
                       content=content,
                       rank=rank)
-        session.add(i)
-        session.flush()
-        session.commit()
+        try:
+            session.add(i)
+            session.flush()
+        except:
+            session.rollback()
+            raise
+        else:
+            session.flush()
+            session.commit()
+
         return i.id
 
     def get(self, item_id: int) -> Optional[Item]:

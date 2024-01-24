@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, APIRouter
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
+from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
 from topic_lake_api.api.routes.connection import router as connection_router
@@ -16,6 +18,13 @@ from topic_lake_api.infra.db.core import init_db, shutdown_db
 from topic_lake_api.interactor.exceptions import ApplicationException
 
 logger = logging.getLogger(__name__)
+
+
+def _db_error_handler(_, exc: SQLAlchemyError) -> JSONResponse:
+    logger.error(str(exc))
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={
+        'detail': 'Internal Server Error'
+    })
 
 
 def _internal_exception_handler(_, exc: InternalException) -> JSONResponse:
@@ -44,6 +53,7 @@ def _fastapi_request_validation_error_handler(_, exc: RequestValidationError) ->
 
 
 def add_error_handlers(app: FastAPI):
+    app.add_exception_handler(SQLAlchemyError, _db_error_handler)
     app.add_exception_handler(InternalException, _internal_exception_handler)
     app.add_exception_handler(ApplicationException, _application_exception_handler)
     app.add_exception_handler(RequestValidationError, _fastapi_request_validation_error_handler)
@@ -64,6 +74,16 @@ def add_v1_router(app: FastAPI):
     main_router.include_router(topics_router)
     main_router.include_router(users_router)
     app.include_router(main_router)
+
+
+def add_middlewares(app: FastAPI):
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=['*'],
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
 
 
 @asynccontextmanager

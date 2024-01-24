@@ -47,9 +47,14 @@ class TopicsRepository(ITopicsRepository):
 
     def create(self, user_id: int, parent_topic_id: Optional[int], content: str) -> int:
         t = TopicModel(user_id=user_id, parent_topic_id=parent_topic_id, content=content)
-        session.add(t)
-        session.flush()
-        session.commit()
+        try:
+            session.add(t)
+            session.flush()
+        except:
+            session.rollback()
+            raise
+        else:
+            session.commit()
         return t.id
 
     def get(self, topic_id: int) -> Optional[Topic]:
