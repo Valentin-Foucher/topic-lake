@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from topic_lake_api.api.utils.route_utils import ensure_authentication
+from topic_lake_api.api.utils.route_utils import ensure_authentication, ensure_authentication_if_authenticated
 from topic_lake_api.app.presenters.connection import LogInPresenter
 from topic_lake_api.app.presenters.items import GetItemPresenter, ListItemsPresenter, CreateItemPresenter
 from topic_lake_api.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
@@ -39,3 +39,4 @@ LogInPresenterDependency = Annotated[LogInPresenter, Depends(LogInPresenter)]
 
 # Authentication
 AuthenticationDependency = Depends(ensure_authentication)
+OptionalAuthenticationDependency = Depends(ensure_authentication_if_authenticated)

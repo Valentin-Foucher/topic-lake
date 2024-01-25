@@ -93,3 +93,4 @@ class TopicsRepository(ITopicsRepository):
                     )
             ).values(content=content, parent_topic_id=parent_topic_id)
         )
+        session.commit()

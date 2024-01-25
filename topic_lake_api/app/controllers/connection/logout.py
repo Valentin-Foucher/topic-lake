@@ -1,3 +1,5 @@
+from typing import Optional
+
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
@@ -9,5 +11,5 @@ class LogOutController(Controller):
         self._access_tokens_repository = access_tokens_repository
         self._users_repository = users_repository
 
-    def execute(self, user_id: int):
+    def execute(self, user_id: Optional[int]):
         return LogOut(self._access_tokens_repository, self._users_repository).execute(user_id)

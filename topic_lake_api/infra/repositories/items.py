@@ -78,6 +78,7 @@ class ItemsRepository(IItemsRepository):
             )
             .values(rank=ItemModel.rank + 1)
         )
+        session.commit()
 
     def get_max_rank(self, topic_id: int) -> int:
         return session.scalars(

@@ -27,3 +27,18 @@ async def ensure_authentication(request: Request, credentials: HTTPAuthorization
         raise NotFound(f'User {user_id} not found')
 
     request.scope['user'] = user
+
+
+async def ensure_authentication_if_authenticated(request: Request, credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    token = credentials.credentials
+    user_id = decode_jwt(token)
+
+    if not user_id:
+        request.scope['user'] = None
+        return
+
+    user = UsersRepository().get(user_id)
+    if not user:
+        raise NotFound(f'User {user_id} not found')
+
+    request.scope['user'] = user
