@@ -104,7 +104,7 @@ class TopicsRepository(ITopicsRepository):
                 select(TopicModel)
                 .where(
                     and_(
-                        TopicModel.parent_topic == parent_topic_id,
+                        TopicModel.parent_topic_id == parent_topic_id,
                         TopicModel.content == content,
                     )
                 ).limit(1)

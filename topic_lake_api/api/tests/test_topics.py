@@ -219,7 +219,7 @@ class TopicsTestCase(HttpTestCase):
                          self.get_data_from_response(response, 'detail'))
 
     @with_another_user(admin=True)
-    async def test_admin_should_not_be_able_to_delete_another_user_topic_even_if_he_does_not_own_the_hierarchy(self):
+    async def test_admin_should_be_able_to_delete_another_user_topic_even_if_he_does_not_own_the_hierarchy(self):
         # logging in as admin
         self.login(self.other_user_id)
         response = await self._create_topic()

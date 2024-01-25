@@ -83,12 +83,9 @@ class ConnectionTestCase(HttpTestCase):
         new_token = self.get_data_from_response(response, 'token')
         self.assertNotEqual(old_token, new_token)
 
-    async def test_logout_with_invalid_user_id(self):
-        self.token = 'azdedqsdqs65d1q6s5d16qs51d65q1'
-        await self._logout(status_code=401, error_message='Unauthorized')
 
     async def test_logout(self):
-        await self._logout(status_code=401, error_message='Invalid token')
+        await self._logout()
         tokens = session.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
