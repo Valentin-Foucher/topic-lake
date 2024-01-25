@@ -13,6 +13,7 @@ class CreateUserResponse(BaseModel):
 class User(BaseModel):
     id: int
     name: str
+    admin: bool
 
 
 class GetUserResponse(BaseModel):
