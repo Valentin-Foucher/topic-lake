@@ -1,6 +1,6 @@
 from typing import Optional
 
-from topic_lake_api.interactor.exceptions import DoesNotExist
+from topic_lake_api.interactor.exceptions import DoesNotExist, InvalidInputData
 from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
@@ -17,5 +17,8 @@ class CreateTopic(UseCase):
         
         if parent_topic_id and not self._topics_repository.get(parent_topic_id):
             raise DoesNotExist(f'Topic {parent_topic_id} does not exist')
+
+        if self._topics_repository.exists(parent_topic_id, content):
+            raise InvalidInputData('This topic already exists')
 
         return self._topics_repository.create(user_id, parent_topic_id, content)

@@ -97,3 +97,19 @@ class TopicsRepository(ITopicsRepository):
             ).values(content=content, parent_topic_id=parent_topic_id)
         )
         session.commit()
+
+    def exists(self, parent_topic_id: Optional[int], content: str) -> bool:
+        try:
+            session.scalars(
+                select(TopicModel)
+                .where(
+                    and_(
+                        TopicModel.parent_topic == parent_topic_id,
+                        TopicModel.content == content,
+                    )
+                ).limit(1)
+            ).one()
+        except NoResultFound:
+            return False
+
+        return True

@@ -53,6 +53,13 @@ class TopicsTestCase(HttpTestCase):
                                  status_code=404,
                                  error_message='Topic 123 does not exist')
 
+    async def test_recreate_already_existing_topic(self):
+        content = 'already existing topic'
+        await self._create_topic(content=content)
+        await self._create_topic(content=content,
+                                 status_code=400,
+                                 error_message='This topic already exists')
+
     async def test_create_topic(self):
         await self._create_topic()
 
@@ -281,3 +288,17 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(1, topic['user_id'])
         self.assertEqual(parent_topic_id, topic['parent_topic_id'])
         self.assertEqual([], topic['sub_topics'])
+
+    async def test_update_topic_but_a_similar_one_already_exists(self):
+        content = 'already existing topic'
+        await self._create_topic(content=content)
+
+        response = await self._create_topic()
+        topic_id = self.get_data_from_response(response, 'id')
+
+        response = await self.put(f'/api/v1/topics/{topic_id}', {
+            'content': content,
+            'parent_topic_id': None
+        })
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('This topic already exists', self.get_data_from_response(response, 'detail'))

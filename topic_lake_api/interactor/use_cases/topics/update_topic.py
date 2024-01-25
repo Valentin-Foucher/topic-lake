@@ -1,6 +1,6 @@
 from typing import Optional
 
-from topic_lake_api.interactor.exceptions import DoesNotExist, ForbiddenAction
+from topic_lake_api.interactor.exceptions import DoesNotExist, ForbiddenAction, InvalidInputData
 from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
@@ -22,5 +22,8 @@ class UpdateTopic(UseCase):
         user = self._users_repository.get(user_id)
         if topic.user_id != user_id and not user.admin:
             raise ForbiddenAction(f'This topic is not owned by user {user_id}')
+
+        if self._topics_repository.exists(parent_topic_id, content):
+            raise InvalidInputData('This topic already exists')
 
         return self._topics_repository.update(user_id, topic_id, parent_topic_id, content)
