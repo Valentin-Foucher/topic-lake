@@ -240,6 +240,18 @@ class TopicsTestCase(HttpTestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual(f'This topic is not owned by user {self.other_user_id}', self.get_data_from_response(response, 'detail'))
 
+    @with_another_user(admin=True)
+    async def test_update_topic_belonging_to_another_user_as_an_admin(self):
+        response = await self._create_topic()
+        topic_to_update_id = self.get_data_from_response(response, 'id')
+
+        self.login(self.other_user_id)
+        response = await self.put(f'/api/v1/topics/{topic_to_update_id}', {
+            'content': 'new content',
+            'parent_topic_id': None
+        })
+        self.assertEqual(204, response.status_code)
+
     async def test_update_topic_with_invalid_parent_topic_id(self):
         response = await self._create_topic()
         topic_to_update_id = self.get_data_from_response(response, 'id')

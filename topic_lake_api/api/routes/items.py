@@ -5,11 +5,12 @@ from starlette.requests import Request
 from topic_lake_api.api.dependencies import ListItemsPresenterDependency, ItemsRepositoryDependency, \
     GetItemPresenterDependency, CreateItemPresenterDependency, TopicsRepositoryDependency, UsersRepositoryDependency, \
     AuthenticationDependency
-from topic_lake_api.api.models.items import CreateItemRequest, ListItemsResponse, GetItemResponse
+from topic_lake_api.api.models.items import CreateItemRequest, ListItemsResponse, GetItemResponse, UpdateItemRequest
 from topic_lake_api.app.controllers.items.create import CreateItemController
 from topic_lake_api.app.controllers.items.delete import DeleteItemController
 from topic_lake_api.app.controllers.items.get import GetItemController
 from topic_lake_api.app.controllers.items.list import ListItemsController
+from topic_lake_api.app.controllers.items.update import UpdateItemController
 
 router = APIRouter(
     prefix='/topics/{topic_id}/items',
@@ -48,4 +49,15 @@ async def delete_item(request: Request, item_id: int, items_repository: ItemsRep
     DeleteItemController(items_repository).execute(
         request.user.id,
         item_id
+    )
+
+
+@router.put('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
+async def update_item(request: Request, item_id: int, item: UpdateItemRequest,
+                      items_repository: ItemsRepositoryDependency):
+    UpdateItemController(items_repository).execute(
+        request.user.id,
+        item_id,
+        item.content,
+        item.rank
     )

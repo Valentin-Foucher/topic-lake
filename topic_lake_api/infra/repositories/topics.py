@@ -88,9 +88,12 @@ class TopicsRepository(ITopicsRepository):
         session.execute(
             update(TopicModel).filter(
                 and_(
-                    TopicModel.user_id == user_id,
-                    TopicModel.id == topic_id
+                    TopicModel.id == topic_id,
+                    or_(
+                        UserModel.admin.is_(True),
+                        TopicModel.user_id == user_id
                     )
+                )
             ).values(content=content, parent_topic_id=parent_topic_id)
         )
         session.commit()

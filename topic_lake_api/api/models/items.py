@@ -22,3 +22,8 @@ class GetItemResponse(BaseModel):
 
 class ListItemsResponse(BaseModel):
     items: list[Item]
+
+
+class UpdateItemRequest(BaseModel):
+    content: str = Field(min_length=4, max_length=256)
+    rank: int

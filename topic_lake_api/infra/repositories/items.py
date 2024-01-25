@@ -67,6 +67,14 @@ class ItemsRepository(IItemsRepository):
         session.commit()
         return result
 
+    def update(self, item_id: int, content: str, rank: int):
+        session.execute(
+            update(ItemModel)
+            .filter(ItemModel.id == item_id)
+            .values(content=content, rank=rank)
+        )
+        session.commit()
+
     def update_ranks_for_topic(self, topic_id: int, rank: int):
         session.execute(
             update(ItemModel)

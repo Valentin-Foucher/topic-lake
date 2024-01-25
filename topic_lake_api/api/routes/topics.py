@@ -52,8 +52,8 @@ async def delete_topic(request: Request, topic_id: int, topics_repository: Topic
 
 @router.put('/{topic_id}', status_code=status.HTTP_204_NO_CONTENT)
 async def update_topic(request: Request, topic_id: int, topic: UpdateTopicRequest,
-                       topics_repository: TopicsRepositoryDependency):
-    return UpdateTopicController(topics_repository).execute(
+                       topics_repository: TopicsRepositoryDependency, users_repository: UsersRepositoryDependency):
+    return UpdateTopicController(topics_repository, users_repository).execute(
         request.user.id,
         topic_id,
         topic.parent_topic_id,

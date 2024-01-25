@@ -22,6 +22,10 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
+    def update(self, item_id: int, content: str, rank: int):
+        pass
+
+    @abstractmethod
     def update_ranks_for_topic(self, topic_id: int, rank: int):
         pass
 

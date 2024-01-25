@@ -156,3 +156,20 @@ class ItemsTestCase(HttpTestCase):
         self.login(self.other_user_id)
         response = await self.delete(f'/api/v1/topics/1/items/{item_id}')
         self.assertEqual(204, response.status_code)
+
+    async def test_update_item_belonging_to_another_user(self):
+        await self._create_item()
+        await self._create_item()
+        response = await self._create_item()
+        item_to_update_id = self.get_data_from_response(response, 'id')
+
+        response = await self.put(f'/api/v1/topics/1/items/{item_to_update_id}', {
+            'content': 'new content',
+            'rank': 1
+        })
+        self.assertEqual(204, response.status_code)
+
+        response = await self.get(f'/api/v1/topics/1/items/{item_to_update_id}')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('new content', self.get_data_from_response(response, 'item.content'))
+        self.assertEqual(1, self.get_data_from_response(response, 'item.rank'))

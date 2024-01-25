@@ -3,6 +3,7 @@ from topic_lake_api.interactor.interfaces.repositories.items import IItemsReposi
 from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
+from topic_lake_api.interactor.utils.item_utils import determine_rank
 
 
 class CreateItem(UseCase):
@@ -20,6 +21,9 @@ class CreateItem(UseCase):
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 
         self._items_repository.update_ranks_for_topic(topic_id, rank)
-        max_rank = self._items_repository.get_max_rank(topic_id)
-
-        return self._items_repository.create(topic_id, user_id, content, min(rank, max_rank + 1))
+        return self._items_repository.create(
+            topic_id,
+            user_id,
+            content,
+            determine_rank(self._items_repository, rank, topic_id)
+        )
