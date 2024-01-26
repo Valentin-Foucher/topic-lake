@@ -9,7 +9,7 @@ class ListTopicsController(Controller):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self):
-        result = ListTopics(self._repository).execute()
+    async def execute(self):
+        result = await ListTopics(self._repository).execute()
         return self._presenter.present(result)
 

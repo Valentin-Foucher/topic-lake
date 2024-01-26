@@ -14,8 +14,8 @@ class CreateItemController(Controller):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, topic_id: int, user_id: int, content: str, rank: int):
-        result = CreateItem(self._items_repository, self._topics_repository, self._users_repository) \
+    async def execute(self, topic_id: int, user_id: int, content: str, rank: int):
+        result = await CreateItem(self._items_repository, self._topics_repository, self._users_repository) \
             .execute(topic_id, user_id, content, rank)
         return self._presenter.present(result)
 

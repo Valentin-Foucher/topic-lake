@@ -10,17 +10,20 @@ packages = [{include = "topic_lake_api"}]
 python = "^3.10"
 fastapi = "^0.105.0"
 uvicorn = "^0.24.0.post1"
-sqlalchemy = "^2.0.23"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.23"}
 frozendict = "^2.3.10"
 pyyaml = "^6.0.1"
 pyaml-env = "^1.2.1"
-psycopg2-binary = "^2.9.9"
 httpx = "^0.26.0"
 asgi-lifespan = "^2.1.0"
 pytest = "^7.4.4"
 sqlalchemy-utils = "^0.41.1"
 alembic = "^1.13.1"
 pyjwt = "^2.8.0"
+asyncpg = "^0.29.0"
+pytest-asyncio = "^0.23.3"
+setuptools = "^69.0.3"
+greenlet = "^3.0.3"
 
 
 [build-system]

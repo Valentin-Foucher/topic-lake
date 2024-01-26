@@ -8,9 +8,9 @@ class CreateUser(UseCase):
     def __init__(self, repository: IUsersRepository):
         self._repository = repository
 
-    def execute(self, name: str, password: str):
-        if self._repository.get_by_name(name):
+    async def execute(self, name: str, password: str) -> int:
+        if await self._repository.get_by_name(name):
             raise AlreadyExist(f'User "{name}" already exists')
 
         hashed_password = hash_password(password)
-        return self._repository.create(name, hashed_password)
+        return await self._repository.create(name, hashed_password)

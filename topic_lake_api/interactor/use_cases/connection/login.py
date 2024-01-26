@@ -10,13 +10,13 @@ class LogIn(UseCase):
         self._access_tokens_repository = access_tokens_repository
         self._users_repository = users_repository
 
-    def execute(self, name: str, password: str):
-        user = self._users_repository.get_by_name(name)
+    async def execute(self, name: str, password: str):
+        user = await self._users_repository.get_by_name(name)
         if not (user and check_password(user.password, password)):
             raise InvalidInputData('Invalid credentials')
 
         return (
-            self._access_tokens_repository.get_latest(user.id) or
-            self._access_tokens_repository.create(user.id),
+            await self._access_tokens_repository.get_latest(user.id) or
+            await self._access_tokens_repository.create(user.id),
             user.id
         )

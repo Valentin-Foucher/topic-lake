@@ -7,8 +7,8 @@ class GetItem(UseCase):
     def __init__(self, repository: IItemsRepository):
         self._repository = repository
 
-    def execute(self, item_id: int):
-        result = self._repository.get(item_id)
+    async def execute(self, item_id: int):
+        result = await self._repository.get(item_id)
         if not result:
             raise DoesNotExist(f'Item {item_id} does not exist')
 

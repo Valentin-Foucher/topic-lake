@@ -4,54 +4,49 @@ from sqlalchemy import select, update, and_, func, or_, delete
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.domain.entities.items import Item
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import Item as ItemModel
 from topic_lake_api.infra.db.models import User as UserModel
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
 
 
-class ItemsRepository(IItemsRepository):
-    def list(self, topic_id: int, limit: int = 100) -> list[Item]:
-        item_list = session.scalars(
+class ItemsRepository(SQLRepository, IItemsRepository):
+    async def list(self, topic_id: int, limit: int = 100) -> list[Item]:
+        item_list = (await self._db.scalars(
             select(ItemModel)
             .where(ItemModel.topic_id == topic_id)
             .order_by(ItemModel.id)
             .limit(limit)
-        ).all()
+        )).all()
         return [item.as_dataclass() for item in item_list]
 
-    def create(self, topic_id: int,  user_id: int, content: str, rank: int) -> int:
+    async def create(self, topic_id: int,  user_id: int, content: str, rank: int) -> int:
         i = ItemModel(topic_id=topic_id,
                       user_id=user_id,
                       content=content,
                       rank=rank)
-        try:
-            session.add(i)
-            session.flush()
-        except:
-            session.rollback()
-            raise
-        else:
-            session.flush()
-            session.commit()
+
+        self._db.add(i)
+        await self._db.commit()
+        await self._db.flush()
 
         return i.id
 
-    def get(self, item_id: int) -> Optional[Item]:
+    async def get(self, item_id: int) -> Optional[Item]:
         try:
-            item = session.scalars(
+            item = (await self._db.scalars(
                 select(ItemModel)
                 .where(ItemModel.id == item_id)
                 .limit(1)
-            ).one()
+            )).one()
         except NoResultFound:
             return None
 
         return item.as_dataclass()
 
-    def delete(self, user_id: int, item_id: int) -> bool:
+    async def delete(self, user_id: int, item_id: int) -> bool:
         deleted_rows = \
-            session.execute(
+            (await self._db.execute(
                 delete(ItemModel).filter(
                     and_(
                         ItemModel.id == item_id,
@@ -61,22 +56,22 @@ class ItemsRepository(IItemsRepository):
                         )
                     )
                 ).returning(ItemModel.id)
-            ).fetchall()
+            )).fetchall()
 
         result = len(deleted_rows) != 0
-        session.commit()
+        await self._db.commit()
         return result
 
-    def update(self, item_id: int, content: str, rank: int):
-        session.execute(
+    async def update(self, item_id: int, content: str, rank: int):
+        await self._db.execute(
             update(ItemModel)
             .filter(ItemModel.id == item_id)
             .values(content=content, rank=rank)
         )
-        session.commit()
+        await self._db.commit()
 
-    def update_ranks_for_topic(self, topic_id: int, rank: int):
-        session.execute(
+    async def update_ranks_for_topic(self, topic_id: int, rank: int):
+        await self._db.execute(
             update(ItemModel)
             .where(
                 and_(
@@ -86,11 +81,11 @@ class ItemsRepository(IItemsRepository):
             )
             .values(rank=ItemModel.rank + 1)
         )
-        session.commit()
+        await self._db.commit()
 
-    def get_max_rank(self, topic_id: int) -> int:
-        return session.scalars(
+    async def get_max_rank(self, topic_id: int) -> int:
+        return (await self._db.scalars(
             select(func.max(ItemModel.rank))
             .where(ItemModel.topic_id == topic_id)
             .limit(1)
-        ).one() or 0
+        )).one() or 0

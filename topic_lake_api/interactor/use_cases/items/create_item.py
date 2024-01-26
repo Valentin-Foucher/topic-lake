@@ -13,17 +13,19 @@ class CreateItem(UseCase):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, topic_id: int, user_id: int, content: str, rank: int):
-        if not self._users_repository.get(user_id):
+    async def execute(self, topic_id: int, user_id: int, content: str, rank: int):
+        if not await self._users_repository.get(user_id):
             raise DoesNotExist(f'User {user_id} does not exist')
 
-        if not self._topics_repository.get(topic_id):
+        if not await self._topics_repository.get(topic_id):
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 
-        self._items_repository.update_ranks_for_topic(topic_id, rank)
-        return self._items_repository.create(
+        await self._items_repository.update_ranks_for_topic(topic_id, rank)
+
+        rank = await determine_rank(self._items_repository, rank, topic_id)
+        return await self._items_repository.create(
             topic_id,
             user_id,
             content,
-            determine_rank(self._items_repository, rank, topic_id)
+            rank
         )

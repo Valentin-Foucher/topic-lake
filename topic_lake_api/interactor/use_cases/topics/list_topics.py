@@ -6,5 +6,5 @@ class ListTopics(UseCase):
     def __init__(self, repository: ITopicsRepository):
         self._repository = repository
 
-    def execute(self):
-        return self._repository.list()
+    async def execute(self):
+        return await self._repository.list()

@@ -9,8 +9,8 @@ class DeleteTopicController(Controller):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, user_id: int, topic_id: int):
-        DeleteTopic(self._topics_repository, self._users_repository).execute(
+    async def execute(self, user_id: int, topic_id: int):
+        await DeleteTopic(self._topics_repository, self._users_repository).execute(
             user_id,
             topic_id
         )

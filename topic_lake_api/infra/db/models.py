@@ -14,9 +14,9 @@ class User(Model):
     password = Column('password', String, nullable=False)
     admin = Column('admin', Boolean, default=False)
 
-    topic_creations = relationship('Topic', back_populates='user', cascade='all, delete-orphan')
-    item_creations = relationship('Item', back_populates='user', cascade='all, delete-orphan')
-    access_tokens = relationship('AccessToken', back_populates='user', cascade='all, delete-orphan')
+    topic_creations = relationship('Topic', back_populates='user', lazy='selectin', cascade='all, delete-orphan')
+    item_creations = relationship('Item', back_populates='user', lazy='selectin', cascade='all, delete-orphan')
+    access_tokens = relationship('AccessToken', back_populates='user', lazy='selectin', cascade='all, delete-orphan')
 
 
 class Topic(Model):
@@ -27,10 +27,12 @@ class Topic(Model):
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     parent_topic_id = mapped_column(ForeignKey('topics.id', ondelete='CASCADE'))
 
-    sub_topics = relationship('Topic', back_populates='parent_topic', cascade='all, delete-orphan')
-    parent_topic = relationship('Topic', remote_side=[id], back_populates='sub_topics')
-    user = relationship('User', back_populates='topic_creations')
-    item_creations = relationship('Item', back_populates='topic', cascade='all, delete-orphan')
+    sub_topics = relationship('Topic', back_populates='parent_topic', lazy='joined', join_depth=10,
+                              cascade='all, delete-orphan')
+    parent_topic = relationship('Topic', remote_side=[id], lazy='joined', join_depth=1,
+                                back_populates='sub_topics')
+    user = relationship('User', lazy='joined', join_depth=1, back_populates='topic_creations')
+    item_creations = relationship('Item', back_populates='topic', lazy='selectin', cascade='all, delete-orphan')
 
     __table_args__ = (UniqueConstraint('content', 'parent_topic_id'),)
 
@@ -44,8 +46,8 @@ class Item(Model):
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
     topic_id = mapped_column(ForeignKey('topics.id', ondelete='CASCADE'))
 
-    user = relationship('User', back_populates='item_creations')
-    topic = relationship('Topic', back_populates='item_creations')
+    user = relationship('User', back_populates='item_creations', lazy='selectin')
+    topic = relationship('Topic', back_populates='item_creations', lazy='selectin')
 
     __table_args__ = (UniqueConstraint('topic_id', 'rank', deferrable=True),)
 
@@ -59,4 +61,4 @@ class AccessToken(Model):
     revoked = Column('revoked', Boolean, default=False)
     user_id = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
 
-    user = relationship('User', back_populates='access_tokens')
+    user = relationship('User', back_populates='access_tokens', lazy='selectin')

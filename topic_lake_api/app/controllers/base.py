@@ -8,5 +8,5 @@ class Controller(ABC):
     the form required by the business.
     """
     @abstractmethod
-    def execute(self, *args, **kwargs) -> Any:
+    async def execute(self, *args, **kwargs) -> Any:
         pass

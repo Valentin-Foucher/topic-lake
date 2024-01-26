@@ -3,7 +3,7 @@ from starlette import status
 from starlette.requests import Request
 
 from topic_lake_api.api.dependencies import UsersRepositoryDependency, CreateUserPresenterDependency, \
-    GetUserPresenterDependency, AuthenticationDependency
+    GetUserPresenterDependency, AuthenticationDependency, DBDependency
 from topic_lake_api.api.models.users import CreateUserRequest, GetUserResponse, CreateUserResponse
 from topic_lake_api.app.controllers.users.create import CreateUserController
 from topic_lake_api.app.controllers.users.get import GetUserController
@@ -15,9 +15,9 @@ router = APIRouter(
 
 
 @router.post('', status_code=status.HTTP_201_CREATED, response_model=CreateUserResponse)
-async def create_user(user: CreateUserRequest, presenter: CreateUserPresenterDependency,
+async def create_user(db: DBDependency, user: CreateUserRequest, presenter: CreateUserPresenterDependency,
                       users_repository: UsersRepositoryDependency):
-    return CreateUserController(presenter, users_repository).execute(
+    return await CreateUserController(presenter, users_repository).execute(
         user.username,
         user.password
     )
@@ -25,5 +25,6 @@ async def create_user(user: CreateUserRequest, presenter: CreateUserPresenterDep
 
 @router.get('/self', status_code=status.HTTP_200_OK, response_model=GetUserResponse,
             dependencies=[AuthenticationDependency])
-async def get_user(request: Request, presenter: GetUserPresenterDependency, users_repository: UsersRepositoryDependency):
-    return GetUserController(presenter, users_repository).execute(request.user.id)
+async def get_user(db: DBDependency, request: Request, presenter: GetUserPresenterDependency,
+                   users_repository: UsersRepositoryDependency):
+    return await GetUserController(presenter, users_repository).execute(request.user.id)

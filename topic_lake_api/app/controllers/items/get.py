@@ -9,7 +9,7 @@ class GetItemController(Controller):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self, item_id: int):
-        result = GetItem(self._repository).execute(item_id)
+    async def execute(self, item_id: int):
+        result = await GetItem(self._repository).execute(item_id)
         return self._presenter.present(result)
 

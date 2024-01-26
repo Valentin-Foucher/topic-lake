@@ -1,27 +1,28 @@
-from typing import Annotated
+from typing import Annotated, AsyncIterator
 
 from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from topic_lake_api.api.utils.route_utils import ensure_authentication, ensure_authentication_if_authenticated
 from topic_lake_api.app.presenters.connection import LogInPresenter
 from topic_lake_api.app.presenters.items import GetItemPresenter, ListItemsPresenter, CreateItemPresenter
 from topic_lake_api.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
 from topic_lake_api.app.presenters.users import GetUserPresenter, CreateUserPresenter
+from topic_lake_api.infra.db.core import get_db
 from topic_lake_api.infra.repositories.access_tokens import AccessTokensRepository
 from topic_lake_api.infra.repositories.items import ItemsRepository
 from topic_lake_api.infra.repositories.topics import TopicsRepository
 from topic_lake_api.infra.repositories.users import UsersRepository
-from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
-from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 
+
+# Database
+DBDependency = Annotated[AsyncIterator[AsyncSession], Depends(get_db)]
 
 # Repositories
-UsersRepositoryDependency = Annotated[IUsersRepository, Depends(UsersRepository)]
-TopicsRepositoryDependency = Annotated[ITopicsRepository, Depends(TopicsRepository)]
-ItemsRepositoryDependency = Annotated[IItemsRepository, Depends(ItemsRepository)]
-AccessTokensRepositoryDependency = Annotated[IAccessTokensRepository, Depends(AccessTokensRepository)]
+UsersRepositoryDependency = Annotated[UsersRepository, Depends(UsersRepository)]
+TopicsRepositoryDependency = Annotated[TopicsRepository, Depends(TopicsRepository)]
+ItemsRepositoryDependency = Annotated[ItemsRepository, Depends(ItemsRepository)]
+AccessTokensRepositoryDependency = Annotated[AccessTokensRepository, Depends(AccessTokensRepository)]
 
 # Presenters
 GetUserPresenterDependency = Annotated[GetUserPresenter, Depends(GetUserPresenter)]

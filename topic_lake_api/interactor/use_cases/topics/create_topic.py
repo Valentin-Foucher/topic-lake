@@ -11,14 +11,14 @@ class CreateTopic(UseCase):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, user_id: int, parent_topic_id: Optional[int], content: str):
-        if not self._users_repository.get(user_id):
+    async def execute(self, user_id: int, parent_topic_id: Optional[int], content: str):
+        if not await self._users_repository.get(user_id):
             raise DoesNotExist(f'User {user_id} does not exist')
         
-        if parent_topic_id and not self._topics_repository.get(parent_topic_id):
+        if parent_topic_id and not await self._topics_repository.get(parent_topic_id):
             raise DoesNotExist(f'Topic {parent_topic_id} does not exist')
 
-        if self._topics_repository.exists(parent_topic_id, content):
+        if await self._topics_repository.exists(parent_topic_id, content):
             raise InvalidInputData('This topic already exists')
 
-        return self._topics_repository.create(user_id, parent_topic_id, content)
+        return await self._topics_repository.create(user_id, parent_topic_id, content)

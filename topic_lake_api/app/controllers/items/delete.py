@@ -7,6 +7,6 @@ class DeleteItemController(Controller):
     def __init__(self, repository: IItemsRepository):
         self._repository = repository
 
-    def execute(self, user_id: int, item_id: int):
-        DeleteItem(self._repository).execute(user_id, item_id)
+    async def execute(self, user_id: int, item_id: int):
+        await DeleteItem(self._repository).execute(user_id, item_id)
 

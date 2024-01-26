@@ -9,6 +9,6 @@ class GetUserController(Controller):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self, user_id: int):
-        return GetUser(self._presenter, self._repository).execute(user_id)
+    async def execute(self, user_id: int):
+        return await GetUser(self._presenter, self._repository).execute(user_id)
 

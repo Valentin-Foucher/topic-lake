@@ -9,8 +9,8 @@ class GetUser(UseCase):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self, user_id: int):
-        result = self._repository.get(user_id)
+    async def execute(self, user_id: int):
+        result = await self._repository.get(user_id)
         if not result:
             raise DoesNotExist(f'User {user_id} does not exist')
         return self._presenter.present(result)

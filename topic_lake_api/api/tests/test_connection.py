@@ -1,16 +1,22 @@
 from datetime import datetime, timedelta
 
-from sqlalchemy import select
+import pytest
+import pytest_asyncio
+from sqlalchemy import select, delete
 
 from topic_lake_api.api.tests.base import HttpTestCase
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import AccessToken
 
 
-class ConnectionTestCase(HttpTestCase):
-    async def asyncSetUp(self):
-        await super().asyncSetUp()
-        AccessToken.query.delete()
+@pytest.mark.asyncio
+class TestConnection(HttpTestCase):
+    should_login = False
+
+    @pytest_asyncio.fixture(scope='function', autouse=True)
+    async def clear_db(self, user, db, event_loop):
+        await db.execute(
+            delete(AccessToken)
+        )
 
     async def _login(self, status_code=200, error_message='', **overriding_dict):
         response = await self.post('/api/v1/login', {
@@ -20,28 +26,28 @@ class ConnectionTestCase(HttpTestCase):
         },
                                    without_token=True)
 
-        self.assertEqual(status_code, response.status_code)
+        assert status_code == response.status_code
         if status_code == 200:
             data = response.json()
-            self.assertIsInstance(data['token'], str)
-            self.assertIsInstance(data['user_id'], int)
+            assert isinstance(data['token'], str)
+            assert isinstance(data['user_id'], int)
         elif status_code == 422:
             field, value = next(iter(overriding_dict.items()))
             self.validate_input_validation_error(response, {
                 field: [error_message, value]
             })
         else:
-            self.assertEqual(error_message, self.get_data_from_response(response, 'detail'))
+            assert error_message == self.get_data_from_response(response, 'detail')
 
         return response
 
-    async def _logout(self, status_code=200, error_message=''):
-        response = await self.post('/api/v1/logout', {})
+    async def _logout(self, status_code=200, error_message='', without_token=False):
+        response = await self.post('/api/v1/logout', {}, without_token=without_token)
 
-        self.assertEqual(status_code, response.status_code)
+        assert status_code == response.status_code
 
         if status_code != 200:
-            self.assertEqual(error_message, self.get_data_from_response(response, 'detail'))
+            assert error_message == self.get_data_from_response(response, 'detail')
 
         return response
 
@@ -71,39 +77,35 @@ class ConnectionTestCase(HttpTestCase):
         token = self.get_data_from_response(response, 'token')
         response = await self._login()
         token2 = self.get_data_from_response(response, 'token')
-        self.assertEqual(token, token2)
+        assert token == token2
 
-    async def test_login_after_token_expiration(self):
+    async def test_login_after_token_expiration(self, db):
         old_token = '123456'
         t = AccessToken(value=old_token, user_id=1, creation_date=datetime.utcnow() - timedelta(hours=1))
-        session.add(t)
-        session.commit()
+        db.add(t)
+        await db.commit()
 
         response = await self._login()
         new_token = self.get_data_from_response(response, 'token')
-        self.assertNotEqual(old_token, new_token)
+        assert old_token != new_token
 
-
-    async def test_logout(self):
-        await self._logout()
-        tokens = session.scalars(
+    async def test_logout(self, db):
+        await self._logout(without_token=True)
+        tokens = (await db.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
-        ).all()
-        self.assertEqual(0, len(tokens))
+        )).all()
+        assert 0 == len(tokens)
 
-        self.login()
-        tokens = session.scalars(
+        await self.login(db)
+        tokens = (await db.scalars(
             select(AccessToken)
             .where(AccessToken.user_id == 1)
-        ).all()
-        self.assertEqual(1, len(tokens))
-        self.assertFalse(tokens[0].revoked)
+        )).all()
+        assert 1 == len(tokens)
+        token = tokens[0]
+        assert token.revoked is False
 
-        await self._logout()
-        tokens = session.scalars(
-            select(AccessToken)
-            .where(AccessToken.user_id == 1)
-        ).all()
-        self.assertEqual(1, len(tokens))
-        self.assertTrue(tokens[0].revoked)
+        await self._logout(without_token=False)
+        await db.refresh(token)
+        assert token.revoked is True

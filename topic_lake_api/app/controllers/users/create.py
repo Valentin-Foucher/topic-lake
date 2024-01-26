@@ -9,6 +9,6 @@ class CreateUserController(Controller):
         self._presenter = presenter
         self._repository = repository
 
-    def execute(self, name: str, password: str):
-        result = CreateUser(self._repository).execute(name, password)
+    async def execute(self, name: str, password: str):
+        result = await CreateUser(self._repository).execute(name, password)
         return self._presenter.present(result)

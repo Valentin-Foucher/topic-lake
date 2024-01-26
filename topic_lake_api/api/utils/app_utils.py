@@ -2,7 +2,9 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, APIRouter
+from fastapi.dependencies.utils import get_dependant
 from fastapi.exceptions import RequestValidationError
+from fastapi.routing import APIRoute
 from sqlalchemy.exc import SQLAlchemyError
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -13,6 +15,7 @@ from topic_lake_api.api.routes.items import router as items_router
 from topic_lake_api.api.routes.topics import router as topics_router
 from topic_lake_api.api.routes.users import router as users_router
 from topic_lake_api.api.utils.exception_utils import status_code_from_application_exception
+from topic_lake_api.api.utils.route_utils import with_repositories
 from topic_lake_api.exceptions import InternalException
 from topic_lake_api.infra.db.core import init_db, shutdown_db
 from topic_lake_api.interactor.exceptions import ApplicationException
@@ -52,31 +55,37 @@ def _fastapi_request_validation_error_handler(_, exc: RequestValidationError) ->
     })
 
 
-def add_error_handlers(app: FastAPI):
-    app.add_exception_handler(SQLAlchemyError, _db_error_handler)
-    app.add_exception_handler(InternalException, _internal_exception_handler)
+def _add_error_handlers(app: FastAPI, testing: bool):
+    if not testing:
+        app.add_exception_handler(SQLAlchemyError, _db_error_handler)
+        app.add_exception_handler(InternalException, _internal_exception_handler)
+
     app.add_exception_handler(ApplicationException, _application_exception_handler)
     app.add_exception_handler(RequestValidationError, _fastapi_request_validation_error_handler)
 
 
-def add_routers(app: FastAPI, api_version: int):
+def _add_routers(app: FastAPI, api_version: int):
     match api_version:
         case 1:
-            add_v1_router(app)
+            _add_v1_router(app)
         case _:
             raise InternalException('Invalid API version')
 
 
-def add_v1_router(app: FastAPI):
+def _add_v1_router(app: FastAPI):
     main_router = APIRouter(prefix='/api/v1')
     main_router.include_router(connection_router)
     main_router.include_router(items_router)
     main_router.include_router(topics_router)
     main_router.include_router(users_router)
+    for route in main_router.routes:
+        route.endpoint = with_repositories(route.endpoint)
+        route.dependant = get_dependant(path=route.path_format, call=route.endpoint)
+
     app.include_router(main_router)
 
 
-def add_middlewares(app: FastAPI):
+def _add_middlewares(app: FastAPI):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=['*'],
@@ -86,8 +95,24 @@ def add_middlewares(app: FastAPI):
     )
 
 
-@asynccontextmanager
-async def lifespan(_):
-    init_db()
-    yield
-    shutdown_db()
+def init_app(testing: bool = False) -> FastAPI:
+    lifespan = None
+    if not testing:
+        @asynccontextmanager
+        async def lifespan(_):
+            init_db()
+            yield
+            await shutdown_db()
+
+    app = FastAPI(lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=['*'],
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*'],
+    )
+
+    _add_routers(app, api_version=1)
+    _add_error_handlers(app, testing=testing)
+    return app

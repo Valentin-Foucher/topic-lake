@@ -7,8 +7,8 @@ class GetTopic(UseCase):
     def __init__(self, repository: ITopicsRepository):
         self._repository = repository
 
-    def execute(self, topic_id: int):
-        result = self._repository.get(topic_id)
+    async def execute(self, topic_id: int):
+        result = await self._repository.get(topic_id)
         if not result:
             raise DoesNotExist(f'Topic {topic_id} does not exist')
 

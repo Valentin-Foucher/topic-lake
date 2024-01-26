@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from topic_lake_api.api.dependencies import ListItemsPresenterDependency, ItemsRepositoryDependency, \
     GetItemPresenterDependency, CreateItemPresenterDependency, TopicsRepositoryDependency, UsersRepositoryDependency, \
-    AuthenticationDependency
+    AuthenticationDependency, DBDependency
 from topic_lake_api.api.models.items import CreateItemRequest, ListItemsResponse, GetItemResponse, UpdateItemRequest
 from topic_lake_api.app.controllers.items.create import CreateItemController
 from topic_lake_api.app.controllers.items.delete import DeleteItemController
@@ -20,18 +20,18 @@ router = APIRouter(
 
 
 @router.get('', status_code=status.HTTP_200_OK, response_model=ListItemsResponse)
-async def list_items(topic_id: int, presenter: ListItemsPresenterDependency,
+async def list_items(db: DBDependency, topic_id: int, presenter: ListItemsPresenterDependency,
                      items_repository: ItemsRepositoryDependency):
-    return ListItemsController(presenter, items_repository).execute(topic_id)
+    return await ListItemsController(presenter, items_repository).execute(topic_id)
 
 
 @router.post('', status_code=status.HTTP_201_CREATED)
-async def create_item(request: Request, topic_id: int, item: CreateItemRequest,
+async def create_item(db: DBDependency, request: Request, topic_id: int, item: CreateItemRequest,
                       presenter: CreateItemPresenterDependency,
                       items_repository: ItemsRepositoryDependency,
                       topics_repository: TopicsRepositoryDependency,
                       users_repository: UsersRepositoryDependency):
-    return CreateItemController(presenter, items_repository, topics_repository, users_repository).execute(
+    return await CreateItemController(presenter, items_repository, topics_repository, users_repository).execute(
         topic_id,
         request.user.id,
         item.content,
@@ -40,22 +40,22 @@ async def create_item(request: Request, topic_id: int, item: CreateItemRequest,
 
 
 @router.get('/{item_id}', status_code=status.HTTP_200_OK, response_model=GetItemResponse)
-async def get_item(item_id: int, presenter: GetItemPresenterDependency, items_repository: ItemsRepositoryDependency):
-    return GetItemController(presenter, items_repository).execute(item_id)
+async def get_item(db: DBDependency, item_id: int, presenter: GetItemPresenterDependency, items_repository: ItemsRepositoryDependency):
+    return await GetItemController(presenter, items_repository).execute(item_id)
 
 
 @router.delete('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_item(request: Request, item_id: int, items_repository: ItemsRepositoryDependency):
-    DeleteItemController(items_repository).execute(
+async def delete_item(db: DBDependency, request: Request, item_id: int, items_repository: ItemsRepositoryDependency):
+    await DeleteItemController(items_repository).execute(
         request.user.id,
         item_id
     )
 
 
 @router.put('/{item_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def update_item(request: Request, item_id: int, item: UpdateItemRequest,
+async def update_item(db: DBDependency, request: Request, item_id: int, item: UpdateItemRequest,
                       items_repository: ItemsRepositoryDependency):
-    UpdateItemController(items_repository).execute(
+    await UpdateItemController(items_repository).execute(
         request.user.id,
         item_id,
         item.content,

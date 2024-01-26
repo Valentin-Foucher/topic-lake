@@ -11,9 +11,9 @@ class DeleteTopic(UseCase):
         self._topics_repository = topics_repository
         self._users_repository = users_repository
 
-    def execute(self, user_id: int, topic_id: int):
-        topic = self._topics_repository.get(topic_id)
-        user = self._users_repository.get(user_id)
+    async def execute(self, user_id: int, topic_id: int):
+        topic = await self._topics_repository.get(topic_id)
+        user = await self._users_repository.get(user_id)
 
         if not topic:
             raise DoesNotExist(f'Topic {topic_id} does not exist')
@@ -22,7 +22,7 @@ class DeleteTopic(UseCase):
         if not (user.admin or self.is_topic_entirely_owned(topic, user_id)):
             raise ForbiddenAction(f'This topic hierarchy was not entirely created by user {user_id}')
 
-        result = self._topics_repository.delete(user_id, topic_id)
+        result = await self._topics_repository.delete(user_id, topic_id)
         if not result:
             raise InternalException(f'Topic {topic_id} should have been deleted')
 

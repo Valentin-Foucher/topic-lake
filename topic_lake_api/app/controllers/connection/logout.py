@@ -11,5 +11,5 @@ class LogOutController(Controller):
         self._access_tokens_repository = access_tokens_repository
         self._users_repository = users_repository
 
-    def execute(self, user_id: Optional[int]):
-        return LogOut(self._access_tokens_repository, self._users_repository).execute(user_id)
+    async def execute(self, user_id: Optional[int]):
+        return await LogOut(self._access_tokens_repository, self._users_repository).execute(user_id)

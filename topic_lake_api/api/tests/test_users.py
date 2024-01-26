@@ -1,14 +1,19 @@
+from typing import Any
+
+import pytest
+import pytest_asyncio
+from sqlalchemy import delete
+
 from topic_lake_api.api.tests.base import HttpTestCase
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import User
 
 
-class UsersTestCase(HttpTestCase):
-    async def asyncSetUp(self):
-        await super().asyncSetUp()
-        session.execute(
-            User.__table__.delete()
-            .where(User.id != 1)
+@pytest.mark.asyncio
+class TestUsers(HttpTestCase):
+    @pytest_asyncio.fixture(scope='function', autouse=True)
+    async def clear_db(self, user, db, event_loop):
+        await db.execute(
+            delete(User).filter(User.name != 'test_user')
         )
 
     async def _create_user(self, status_code=201, error_message='', **overriding_dict):
@@ -19,23 +24,24 @@ class UsersTestCase(HttpTestCase):
         },
                                    without_token=True)
 
-        self.assertEqual(status_code, response.status_code)
+        assert status_code == response.status_code
         if status_code == 201:
-            self.assertIsInstance(self.get_data_from_response(response, 'id'), int)
+            assert isinstance(self.get_data_from_response(response, 'id'), int)
         elif status_code == 422:
             field, value = next(iter(overriding_dict.items()))
             self.validate_input_validation_error(response, {
                 field: [error_message, value]
             })
         else:
-            self.assertEqual(error_message, self.get_data_from_response(response, 'detail'))
+            assert error_message == self.get_data_from_response(response, 'detail')
 
         return response
 
-    def _assert_user(self, user):
-        self.assertIsInstance(user['id'], int)
-        self.assertEqual('user', user['name'])
-        self.assertNotIn('password', user)
+    @staticmethod
+    def _assert_user(user: dict[str, Any]):
+        assert isinstance(user['id'], int)
+        assert 'user' == user['name']
+        assert 'password' not in user
 
     async def test_create_with_invalid_username(self):
         await self._create_user(username=111,
@@ -62,11 +68,11 @@ class UsersTestCase(HttpTestCase):
     async def test_create_user(self):
         await self._create_user()
 
-    async def test_get_user(self):
+    async def test_get_user(self, db):
         response = await self._create_user()
         inserted_id = self.get_data_from_response(response, 'id')
-        self.login(inserted_id)
+        await self.login(db, inserted_id)
 
         response = await self.get('/api/v1/users/self')
-        self.assertEqual(200, response.status_code)
+        assert 200 == response.status_code
         self._assert_user(self.get_data_from_response(response, 'user'))

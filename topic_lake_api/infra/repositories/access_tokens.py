@@ -5,41 +5,36 @@ from sqlalchemy import select, and_, update
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.constants import TOKEN_MAX_DURATION
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import AccessToken
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
 from topic_lake_api.utils.crypto_utils import encode_jwt
 
 
-class AccessTokensRepository(IAccessTokensRepository):
-    @staticmethod
-    def _get_by_id(token_id: int):
+class AccessTokensRepository(SQLRepository, IAccessTokensRepository):
+
+    async def _get_by_id(self, token_id: int):
         try:
-            return session.scalars(
+            return (await self._db.scalars(
                 select(AccessToken)
                 .where(AccessToken.id == token_id)
                 .limit(1)
-            ).one()
+            )).one()
         except NoResultFound:
             return None
 
-    def create(self, user_id: int) -> str:
+    async def create(self, user_id: int) -> str:
         token_value = encode_jwt(user_id)
         t = AccessToken(value=token_value, user_id=user_id)
-        try:
-            session.add(t)
-            session.flush()
-        except:
-            session.rollback()
-            raise
-        else:
-            session.commit()
+        self._db.add(t)
+        await self._db.commit()
+        await self._db.flush()
 
         return token_value
 
-    def get_latest(self, user_id: int) -> Optional[str]:
+    async def get_latest(self, user_id: int) -> Optional[str]:
         try:
-            t = session.scalars(
+            t = (await self._db.scalars(
                 select(AccessToken)
                 .where(
                     and_(
@@ -49,14 +44,14 @@ class AccessTokensRepository(IAccessTokensRepository):
                 )
                 .order_by(AccessToken.creation_date.desc())
                 .limit(1)
-            ).one()
+            )).one()
         except NoResultFound:
             return None
 
         return t.value
 
-    def delete_all(self, user_id: int):
-        session.execute(
+    async def delete_all(self, user_id: int):
+        await self._db.execute(
             update(AccessToken)
             .where(
                 and_(
@@ -66,14 +61,15 @@ class AccessTokensRepository(IAccessTokensRepository):
             )
             .values(revoked=True)
         )
+        await self._db.commit()
 
-    def is_revoked(self, value: str) -> Optional[bool]:
+    async def is_revoked(self, value: str) -> Optional[bool]:
         try:
-            t = session.scalars(
+            t = (await self._db.scalars(
                 select(AccessToken)
                 .where(AccessToken.value == value)
                 .limit(1)
-            ).one()
+            )).one()
         except NoResultFound:
             return None
 
