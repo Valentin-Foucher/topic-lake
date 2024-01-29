@@ -15,7 +15,7 @@ class ItemsRepository(IItemsRepository):
         item_list = session.scalars(
             select(ItemModel)
             .where(ItemModel.topic_id == topic_id)
-            .order_by(ItemModel.id)
+            .order_by(ItemModel.rank)
             .limit(limit)
         ).all()
         return [item.as_dataclass() for item in item_list]

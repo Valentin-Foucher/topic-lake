@@ -123,11 +123,16 @@ class ItemsTestCase(HttpTestCase):
 
         response = await self.get('/api/v1/topics/1/items')
         self.assertEqual(200, response.status_code)
-        self.assertEqual(4, self.get_data_from_response(response, 'items.0.rank'))
+        self.assertEqual(1, self.get_data_from_response(response, 'items.0.rank'))
+        self.assertEqual(4, self.get_data_from_response(response, 'items.0.id'))
         self.assertEqual(2, self.get_data_from_response(response, 'items.1.rank'))
+        self.assertEqual(2, self.get_data_from_response(response, 'items.1.id'))
         self.assertEqual(3, self.get_data_from_response(response, 'items.2.rank'))
-        self.assertEqual(1, self.get_data_from_response(response, 'items.3.rank'))
+        self.assertEqual(3, self.get_data_from_response(response, 'items.2.id'))
+        self.assertEqual(4, self.get_data_from_response(response, 'items.3.rank'))
+        self.assertEqual(1, self.get_data_from_response(response, 'items.3.id'))
         self.assertEqual(5, self.get_data_from_response(response, 'items.4.rank'))
+        self.assertEqual(5, self.get_data_from_response(response, 'items.4.id'))
 
     @with_another_user()
     async def test_user_should_not_be_able_to_delete_another_user_item(self):
