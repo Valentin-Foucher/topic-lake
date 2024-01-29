@@ -28,11 +28,11 @@ class AccessTokensRepository(IAccessTokensRepository):
         t = AccessToken(value=token_value, user_id=user_id)
         try:
             session.add(t)
-            session.flush()
         except:
             session.rollback()
             raise
         else:
+            session.flush()
             session.commit()
 
         return token_value

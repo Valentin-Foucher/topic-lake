@@ -49,11 +49,11 @@ class TopicsRepository(ITopicsRepository):
         t = TopicModel(user_id=user_id, parent_topic_id=parent_topic_id, content=content)
         try:
             session.add(t)
-            session.flush()
         except:
             session.rollback()
             raise
         else:
+            session.flush()
             session.commit()
         return t.id
 

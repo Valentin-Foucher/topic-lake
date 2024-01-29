@@ -13,10 +13,8 @@ class UsersRepository(IUsersRepository):
     def create(self, name: str, hashed_password: str) -> int:
         u = UserModel(name=name, password=hashed_password)
 
-        # TODO -> rework session handling
         try:
             session.add(u)
-            session.flush()
         except:
             session.rollback()
             raise

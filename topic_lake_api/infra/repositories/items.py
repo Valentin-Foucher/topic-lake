@@ -27,7 +27,6 @@ class ItemsRepository(IItemsRepository):
                       rank=rank)
         try:
             session.add(i)
-            session.flush()
         except:
             session.rollback()
             raise
