@@ -1,14 +1,21 @@
 import uuid
+from pprint import pprint
+
+from sqlalchemy import delete
 
 from topic_lake_api.api.tests.base import HttpTestCase
 from topic_lake_api.api.tests.decorators import with_another_user
+from topic_lake_api.infra.db.core import get_session
 from topic_lake_api.infra.db.models import Topic
 
 
 class TopicsTestCase(HttpTestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        Topic.query.delete()
+        with get_session() as session:
+            session.execute(
+                delete(Topic)
+            )
 
     async def _create_topic(self, status_code=201, error_message='', **overriding_dict):
         response = await self.post('/api/v1/topics', {
@@ -167,6 +174,7 @@ class TopicsTestCase(HttpTestCase):
 
         self._assert_topic(self.get_data_from_response(response, 'topics.0'))
         self._assert_topic(self.get_data_from_response(response, 'topics.1'))
+        print(pprint(response.json()))
         self._assert_topic(self.get_data_from_response(response, 'topics.0.sub_topics.0'))
         self.assertEqual(first_root_topic_id, self.get_data_from_response(response, 'topics.0.id'))
         self.assertEqual(second_root_topic_id, self.get_data_from_response(response, 'topics.1.id'))
@@ -245,7 +253,10 @@ class TopicsTestCase(HttpTestCase):
             'parent_topic_id': None
         })
         self.assertEqual(403, response.status_code)
-        self.assertEqual(f'This topic is not owned by user {self.other_user_id}', self.get_data_from_response(response, 'detail'))
+        self.assertEqual(
+            f'This topic is not owned by user {self.other_user_id}',
+            self.get_data_from_response(response, 'detail')
+        )
 
     @with_another_user(admin=True)
     async def test_update_topic_belonging_to_another_user_as_an_admin(self):

@@ -5,17 +5,16 @@ from sqlalchemy import select, and_, update
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.constants import TOKEN_MAX_DURATION
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import AccessToken
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
 from topic_lake_api.utils.crypto_utils import encode_jwt
 
 
-class AccessTokensRepository(IAccessTokensRepository):
-    @staticmethod
-    def _get_by_id(token_id: int):
+class AccessTokensRepository(SQLRepository, IAccessTokensRepository):
+    def _get_by_id(self, token_id: int):
         try:
-            return session.scalars(
+            return self._session.scalars(
                 select(AccessToken)
                 .where(AccessToken.id == token_id)
                 .limit(1)
@@ -26,20 +25,15 @@ class AccessTokensRepository(IAccessTokensRepository):
     def create(self, user_id: int) -> str:
         token_value = encode_jwt(user_id)
         t = AccessToken(value=token_value, user_id=user_id)
-        try:
-            session.add(t)
-        except:
-            session.rollback()
-            raise
-        else:
-            session.flush()
-            session.commit()
+
+        self._session.add(t)
+        self._session.flush()
 
         return token_value
 
     def get_latest(self, user_id: int) -> Optional[str]:
         try:
-            t = session.scalars(
+            t = self._session.scalars(
                 select(AccessToken)
                 .where(
                     and_(
@@ -56,7 +50,7 @@ class AccessTokensRepository(IAccessTokensRepository):
         return t.value
 
     def delete_all(self, user_id: int):
-        session.execute(
+        self._session.execute(
             update(AccessToken)
             .where(
                 and_(
@@ -69,7 +63,7 @@ class AccessTokensRepository(IAccessTokensRepository):
 
     def is_revoked(self, value: str) -> Optional[bool]:
         try:
-            t = session.scalars(
+            t = self._session.scalars(
                 select(AccessToken)
                 .where(AccessToken.value == value)
                 .limit(1)

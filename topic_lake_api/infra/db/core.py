@@ -1,10 +1,12 @@
+import contextlib
 import inspect
 import logging
 import re
-from typing import TypeVar
+from functools import lru_cache
+from typing import TypeVar, Iterator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base
+from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base, Session
 from sqlalchemy_utils import database_exists, create_database
 
 from topic_lake_api import config
@@ -12,12 +14,7 @@ from topic_lake_api.utils.object_utils import get_object_by_name
 
 engine = create_engine(config.get('postgres.connection_string'))
 
-session = scoped_session(sessionmaker(bind=engine))
-
 Model = declarative_base(name='Model')
-TModel = TypeVar('TModel', bound=Model)
-
-Model.query = session.query_property()
 
 
 def as_dataclass(model: Model | list[Model]):
@@ -54,6 +51,24 @@ def as_dataclass(model: Model | list[Model]):
 Model.as_dataclass = as_dataclass
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache
+def session_maker() -> sessionmaker:
+    return sessionmaker(bind=engine)
+
+
+@contextlib.contextmanager
+def get_session() -> Iterator[Session]:
+    s = scoped_session(session_maker())
+    try:
+        yield s
+        s.commit()
+    except Exception:
+        s.rollback()
+        raise
+    finally:
+        s.close()
 
 
 def init_db():

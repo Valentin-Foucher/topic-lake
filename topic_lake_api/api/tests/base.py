@@ -6,7 +6,7 @@ from asgi_lifespan import LifespanManager
 from httpx import AsyncClient, Response
 
 from topic_lake_api.interactor.utils.encryption_utils import hash_password
-from topic_lake_api.infra.db.core import engine, Model, session
+from topic_lake_api.infra.db.core import engine, Model, get_session
 from topic_lake_api.infra.db.models import User, AccessToken
 from topic_lake_api.utils.crypto_utils import encode_jwt
 from topic_lake_api.utils.object_utils import get_nested_element
@@ -27,7 +27,11 @@ class HttpTestCase(IsolatedAsyncioTestCase):
     def setUpClass(cls):
         cls._clear_db()
         Model.metadata.create_all(engine)
-        cls._create_test_user()
+        u = cls._create_test_user()
+        with get_session() as session:
+            session.add(u)
+            session.commit()
+
         cls._client = AsyncClient(app=app, base_url='http://localhost')
 
     @classmethod
@@ -73,16 +77,13 @@ class HttpTestCase(IsolatedAsyncioTestCase):
 
     @staticmethod
     def _clear_db():
-        session.commit()
-        Model.metadata.drop_all(engine)
+        with get_session() as session:
+            session.commit()
+            Model.metadata.drop_all(engine)
 
     @staticmethod
     def _create_test_user(name='test_user', password='password123', admin=False):
-        u = User(name=name, password=hash_password(password), admin=admin)
-        session.add(u)
-        session.commit()
-        session.flush()
-        return u
+        return User(name=name, password=hash_password(password), admin=admin)
 
     def _get_headers(self, without_token: bool):
         headers = {}
@@ -93,6 +94,8 @@ class HttpTestCase(IsolatedAsyncioTestCase):
     def login(self, user_id=1):
         self.token = encode_jwt(user_id)
         self.user_id = user_id
+
         token = AccessToken(value=self.token, user_id=user_id)
-        session.add(token)
-        session.commit()
+        with get_session() as session:
+            session.add(token)
+            session.commit()

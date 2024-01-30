@@ -4,15 +4,15 @@ from sqlalchemy import select, update, and_, func, or_, delete
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.domain.entities.items import Item
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import Item as ItemModel
 from topic_lake_api.infra.db.models import User as UserModel
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
 
 
-class ItemsRepository(IItemsRepository):
+class ItemsRepository(SQLRepository, IItemsRepository):
     def list(self, topic_id: int, limit: int = 100) -> list[Item]:
-        item_list = session.scalars(
+        item_list = self._session.scalars(
             select(ItemModel)
             .where(ItemModel.topic_id == topic_id)
             .order_by(ItemModel.rank)
@@ -25,20 +25,14 @@ class ItemsRepository(IItemsRepository):
                       user_id=user_id,
                       content=content,
                       rank=rank)
-        try:
-            session.add(i)
-        except:
-            session.rollback()
-            raise
-        else:
-            session.flush()
-            session.commit()
+        self._session.add(i)
+        self._session.flush()
 
         return i.id
 
     def get(self, item_id: int) -> Optional[Item]:
         try:
-            item = session.scalars(
+            item = self._session.scalars(
                 select(ItemModel)
                 .where(ItemModel.id == item_id)
                 .limit(1)
@@ -50,7 +44,7 @@ class ItemsRepository(IItemsRepository):
 
     def delete(self, user_id: int, item_id: int) -> bool:
         deleted_rows = \
-            session.execute(
+            self._session.execute(
                 delete(ItemModel).filter(
                     and_(
                         ItemModel.id == item_id,
@@ -63,19 +57,17 @@ class ItemsRepository(IItemsRepository):
             ).fetchall()
 
         result = len(deleted_rows) != 0
-        session.commit()
         return result
 
     def update(self, item_id: int, content: str, rank: int):
-        session.execute(
+        self._session.execute(
             update(ItemModel)
             .filter(ItemModel.id == item_id)
             .values(content=content, rank=rank)
         )
-        session.commit()
 
     def update_ranks_for_topic(self, topic_id: int, rank: int):
-        session.execute(
+        self._session.execute(
             update(ItemModel)
             .where(
                 and_(
@@ -85,10 +77,9 @@ class ItemsRepository(IItemsRepository):
             )
             .values(rank=ItemModel.rank + 1)
         )
-        session.commit()
 
     def get_max_rank(self, topic_id: int) -> int:
-        return session.scalars(
+        return self._session.scalars(
             select(func.max(ItemModel.rank))
             .where(ItemModel.topic_id == topic_id)
             .limit(1)

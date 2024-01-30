@@ -1,9 +1,13 @@
+from functools import wraps
+
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 
 from topic_lake_api.api.exceptions import Unauthorized, NotFound
+from topic_lake_api.infra.db.core import get_session
 from topic_lake_api.infra.repositories.access_tokens import AccessTokensRepository
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.infra.repositories.users import UsersRepository
 from topic_lake_api.utils.crypto_utils import decode_jwt
 
@@ -15,30 +19,50 @@ async def ensure_authentication(request: Request, credentials: HTTPAuthorization
     if not user_id:
         raise Unauthorized('Unauthorized')
 
-    access_tokens_repository = AccessTokensRepository()
-    match access_tokens_repository.is_revoked(token):
-        case None:
-            raise Unauthorized('Invalid token')
-        case True:
-            access_tokens_repository.create(user_id)
+    with get_session() as session:
+        access_tokens_repository = AccessTokensRepository().with_session(session)
+        match access_tokens_repository.is_revoked(token):
+            case None:
+                raise Unauthorized('Invalid token')
+            case True:
+                access_tokens_repository.create(user_id)
 
-    user = UsersRepository().get(user_id)
-    if not user:
-        raise NotFound(f'User {user_id} not found')
+        user = UsersRepository().with_session(session).get(user_id)
+        if not user:
+            raise NotFound(f'User {user_id} not found')
 
-    request.scope['user'] = user
+        request.scope['user'] = user
 
 
-async def ensure_authentication_if_authenticated(request: Request, credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+async def ensure_authentication_if_authenticated(
+        request: Request,
+        credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer(auto_error=False))
+):
+    request.scope['user'] = None
+    if not credentials:
+        return
+
     token = credentials.credentials
     user_id = decode_jwt(token)
 
     if not user_id:
-        request.scope['user'] = None
         return
 
-    user = UsersRepository().get(user_id)
-    if not user:
-        raise NotFound(f'User {user_id} not found')
+    with get_session() as session:
+        user = UsersRepository().with_session(session).get(user_id)
+        if not user:
+            raise NotFound(f'User {user_id} not found')
 
-    request.scope['user'] = user
+        request.scope['user'] = user
+
+
+def inject_scoped_session_in_repositories(f):
+    @wraps(f)
+    async def wrapper(*args, **kwargs):
+        with get_session() as session:
+            for parameter in kwargs.values():
+                if isinstance(parameter, SQLRepository):
+                    parameter.with_session(session)
+            return await f(*args, **kwargs)
+
+    return wrapper

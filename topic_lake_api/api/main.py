@@ -1,23 +1,11 @@
 import uvicorn
-from fastapi import FastAPI
 from starlette import status
-from starlette.middleware.cors import CORSMiddleware
 
-from topic_lake_api.api.utils.app_utils import add_error_handlers, add_routers, lifespan
+from topic_lake_api.api.utils.app_utils import init_app
 from topic_lake_api.config import load_config
 
 
-app = FastAPI(lifespan=lifespan)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=['*'],
-    allow_credentials=True,
-    allow_methods=['*'],
-    allow_headers=['*'],
-)
-
-add_routers(app, api_version=1)
-add_error_handlers(app)
+app = init_app()
 
 
 @app.get('/', status_code=status.HTTP_204_NO_CONTENT)

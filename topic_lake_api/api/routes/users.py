@@ -25,5 +25,6 @@ async def create_user(user: CreateUserRequest, presenter: CreateUserPresenterDep
 
 @router.get('/self', status_code=status.HTTP_200_OK, response_model=GetUserResponse,
             dependencies=[AuthenticationDependency])
-async def get_user(request: Request, presenter: GetUserPresenterDependency, users_repository: UsersRepositoryDependency):
+async def get_user(request: Request, presenter: GetUserPresenterDependency,
+                   users_repository: UsersRepositoryDependency):
     return GetUserController(presenter, users_repository).execute(request.user.id)

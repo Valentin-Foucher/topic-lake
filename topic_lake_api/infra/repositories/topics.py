@@ -5,19 +5,17 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
 from topic_lake_api.domain.entities.topics import Topic
-from topic_lake_api.infra.db.core import session
 from topic_lake_api.infra.db.models import Topic as TopicModel
 from topic_lake_api.infra.db.models import User as UserModel
+from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 
 
-class TopicsRepository(ITopicsRepository):
+class TopicsRepository(SQLRepository, ITopicsRepository):
 
-    @staticmethod
-    def _get_topics_as_treeview(*filters: list[bool], limit: int = 1):
-        anchor_member = session.query(TopicModel, literal(0).label('level')) \
+    def _get_topics_as_treeview(self, *filters: list[bool], limit: int = 1):
+        anchor_member = self._session.query(TopicModel, literal(0).label('level')) \
             .filter(*filters) \
-            .order_by(TopicModel.id) \
             .limit(limit) \
             .cte(name='ancestors_id', recursive=True)
 
@@ -25,20 +23,20 @@ class TopicsRepository(ITopicsRepository):
         children = aliased(TopicModel, name='c')
 
         recursive_member = anchor_member.union_all(
-            session
+            self._session
             .query(children, (parent.c.level + 1).label('level'))
             .filter(children.parent_topic_id == parent.c.id)
             .order_by(parent.c.id)
         )
 
-        return session.scalars(
+        return self._session.scalars(
             select(TopicModel, recursive_member.c.level)
             .where(
                 and_(
                     TopicModel.id == recursive_member.c.id,
                     recursive_member.c.level == 0
                 )
-            )
+            ).order_by(TopicModel.id)
         )
 
     def list(self, limit: int = 100) -> list[Topic]:
@@ -47,14 +45,10 @@ class TopicsRepository(ITopicsRepository):
 
     def create(self, user_id: int, parent_topic_id: Optional[int], content: str) -> int:
         t = TopicModel(user_id=user_id, parent_topic_id=parent_topic_id, content=content)
-        try:
-            session.add(t)
-        except:
-            session.rollback()
-            raise
-        else:
-            session.flush()
-            session.commit()
+
+        self._session.add(t)
+        self._session.flush()
+
         return t.id
 
     def get(self, topic_id: int) -> Optional[Topic]:
@@ -68,7 +62,7 @@ class TopicsRepository(ITopicsRepository):
 
     def delete(self, user_id: int, topic_id: int) -> bool:
         deleted_rows = \
-            session.execute(
+            self._session.execute(
                 delete(TopicModel).filter(
                     and_(
                         TopicModel.id == topic_id,
@@ -81,11 +75,10 @@ class TopicsRepository(ITopicsRepository):
             ).fetchall()
 
         result = len(deleted_rows) != 0
-        session.commit()
         return result
 
     def update(self, user_id: int, topic_id: int, parent_topic_id: Optional[int], content: str):
-        session.execute(
+        self._session.execute(
             update(TopicModel).filter(
                 and_(
                     TopicModel.id == topic_id,
@@ -96,11 +89,10 @@ class TopicsRepository(ITopicsRepository):
                 )
             ).values(content=content, parent_topic_id=parent_topic_id)
         )
-        session.commit()
 
     def exists(self, parent_topic_id: Optional[int], content: str) -> bool:
         try:
-            session.scalars(
+            self._session.scalars(
                 select(TopicModel)
                 .where(
                     and_(

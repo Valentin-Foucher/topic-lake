@@ -1,8 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from topic_lake_api.api.tests.base import HttpTestCase
 from topic_lake_api.api.tests.decorators import with_another_user
-from topic_lake_api.infra.db.core import session
+from topic_lake_api.infra.db.core import get_session
 from topic_lake_api.infra.db.models import Item, Topic
 
 
@@ -10,12 +10,16 @@ class ItemsTestCase(HttpTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        session.add(Topic(content='Holiday destinations', user_id=1))
-        session.commit()
+        with get_session() as session:
+            session.add(Topic(content='Holiday destinations', user_id=1))
+            session.commit()
 
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        Item.query.delete()
+        with get_session() as session:
+            session.execute(
+                delete(Item)
+            )
 
     async def _create_item(self, status_code=201, error_message='', topic_id=1, **overriding_dict):
         response = await self.post(f'/api/v1/topics/{topic_id}/items', {
@@ -96,43 +100,52 @@ class ItemsTestCase(HttpTestCase):
 
     async def test_delete_topic_should_delete_item(self):
         test_topic = Topic(content='deleted_topic', user_id=1)
-        session.add(test_topic)
-        session.commit()
-        session.flush()
+        with get_session() as session:
+            session.add(test_topic)
+            session.flush()
+            session.commit()
 
-        response = await self._create_item(topic_id=test_topic.id)
+            test_topic_id = test_topic.id
+
+        response = await self._create_item(topic_id=test_topic_id)
         self.assertEqual(201, response.status_code)
         item_id = self.get_data_from_response(response, 'id')
 
-        response = await self.delete(f'/api/v1/topics/{test_topic.id}')
+        response = await self.delete(f'/api/v1/topics/{test_topic_id}')
         self.assertEqual(204, response.status_code)
 
-        item_query = session.scalars(
-            select(Item)
-            .where(Item.id == item_id)
-            .limit(1)
-        )
+        with get_session() as session:
+            item_query = session.scalars(
+                select(Item)
+                .where(Item.id == item_id)
+                .limit(1)
+            )
         self.assertEqual(0, len(item_query.all()))
 
     async def test_create_many_items(self):
-        await self._create_item()
-        await self._create_item(rank=1)
-        await self._create_item(rank=2)
-        await self._create_item(rank=1)
-        await self._create_item(rank=140)
+        response = await self._create_item()
+        first_id = self.get_data_from_response(response, 'id')
+        response = await self._create_item(rank=1)
+        second_id = self.get_data_from_response(response, 'id')
+        response = await self._create_item(rank=2)
+        third_id = self.get_data_from_response(response, 'id')
+        response = await self._create_item(rank=1)
+        fourth_id = self.get_data_from_response(response, 'id')
+        response = await self._create_item(rank=140)
+        fifth_id = self.get_data_from_response(response, 'id')
 
         response = await self.get('/api/v1/topics/1/items')
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, self.get_data_from_response(response, 'items.0.rank'))
-        self.assertEqual(4, self.get_data_from_response(response, 'items.0.id'))
+        self.assertEqual(fourth_id, self.get_data_from_response(response, 'items.0.id'))
         self.assertEqual(2, self.get_data_from_response(response, 'items.1.rank'))
-        self.assertEqual(2, self.get_data_from_response(response, 'items.1.id'))
+        self.assertEqual(second_id, self.get_data_from_response(response, 'items.1.id'))
         self.assertEqual(3, self.get_data_from_response(response, 'items.2.rank'))
-        self.assertEqual(3, self.get_data_from_response(response, 'items.2.id'))
+        self.assertEqual(third_id, self.get_data_from_response(response, 'items.2.id'))
         self.assertEqual(4, self.get_data_from_response(response, 'items.3.rank'))
-        self.assertEqual(1, self.get_data_from_response(response, 'items.3.id'))
+        self.assertEqual(first_id, self.get_data_from_response(response, 'items.3.id'))
         self.assertEqual(5, self.get_data_from_response(response, 'items.4.rank'))
-        self.assertEqual(5, self.get_data_from_response(response, 'items.4.id'))
+        self.assertEqual(fifth_id, self.get_data_from_response(response, 'items.4.id'))
 
     @with_another_user()
     async def test_user_should_not_be_able_to_delete_another_user_item(self):

@@ -1,15 +1,16 @@
 from topic_lake_api.api.tests.base import HttpTestCase
-from topic_lake_api.infra.db.core import session
+from topic_lake_api.infra.db.core import get_session
 from topic_lake_api.infra.db.models import User
 
 
 class UsersTestCase(HttpTestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        session.execute(
-            User.__table__.delete()
-            .where(User.id != 1)
-        )
+        with get_session() as session:
+            session.execute(
+                User.__table__.delete()
+                .where(User.id != 1)
+            )
 
     async def _create_user(self, status_code=201, error_message='', **overriding_dict):
         response = await self.post('/api/v1/users', {
