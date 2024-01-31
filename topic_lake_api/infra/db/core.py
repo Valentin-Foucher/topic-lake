@@ -3,7 +3,7 @@ import inspect
 import logging
 import re
 from functools import lru_cache
-from typing import TypeVar, Iterator
+from typing import Iterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base, Session

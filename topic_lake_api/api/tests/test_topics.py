@@ -48,9 +48,9 @@ class TopicsTestCase(HttpTestCase):
         await self._create_topic(content=111,
                                  status_code=422,
                                  error_message='Input should be a valid string')
-        await self._create_topic(content='a',
+        await self._create_topic(content='a' * 2,
                                  status_code=422,
-                                 error_message='String should have at least 4 characters')
+                                 error_message='String should have at least 3 characters')
         await self._create_topic(content='a' * 257,
                                  status_code=422,
                                  error_message='String should have at most 256 characters')
@@ -312,4 +312,7 @@ class TopicsTestCase(HttpTestCase):
             'parent_topic_id': None
         })
         self.assertEqual(400, response.status_code)
-        self.assertEqual('This topic already exists', self.get_data_from_response(response, 'detail'))
+        self.assertEqual(
+            'Cannot move or rename this topic, a similar topic already exists',
+            self.get_data_from_response(response, 'detail')
+        )

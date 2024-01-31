@@ -42,9 +42,9 @@ class UsersTestCase(HttpTestCase):
         await self._create_user(username=111,
                                 status_code=422,
                                 error_message='Input should be a valid string')
-        await self._create_user(username='a' * 3,
+        await self._create_user(username='a' * 2,
                                 status_code=422,
-                                error_message='String should have at least 4 characters')
+                                error_message='String should have at least 3 characters')
         await self._create_user(username='a' * 65,
                                 status_code=422,
                                 error_message='String should have at most 64 characters')

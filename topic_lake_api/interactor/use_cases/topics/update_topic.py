@@ -24,6 +24,6 @@ class UpdateTopic(UseCase):
             raise ForbiddenAction(f'This topic is not owned by user {user_id}')
 
         if self._topics_repository.exists(parent_topic_id, content):
-            raise InvalidInputData('This topic already exists')
+            raise InvalidInputData('Cannot move or rename this topic, a similar topic already exists')
 
         return self._topics_repository.update(user_id, topic_id, parent_topic_id, content)
