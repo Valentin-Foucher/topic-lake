@@ -26,7 +26,7 @@ class TopicsRepository(SQLRepository, ITopicsRepository):
             self._session
             .query(children, (parent.c.level + 1).label('level'))
             .filter(children.parent_topic_id == parent.c.id)
-            .order_by(parent.c.id)
+            .order_by(parent.c.content)
         )
 
         return self._session.scalars(
@@ -36,10 +36,10 @@ class TopicsRepository(SQLRepository, ITopicsRepository):
                     TopicModel.id == recursive_member.c.id,
                     recursive_member.c.level == 0
                 )
-            ).order_by(TopicModel.id)
+            ).order_by(TopicModel.content)
         )
 
-    def list(self, limit: int = 100) -> list[Topic]:
+    def list(self, limit: int = 1000) -> list[Topic]:
         topic_list = self._get_topics_as_treeview(TopicModel.parent_topic == null(), limit=limit)
         return [topic.as_dataclass() for topic in topic_list]
 
