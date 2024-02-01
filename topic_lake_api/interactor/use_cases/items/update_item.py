@@ -13,9 +13,12 @@ class UpdateItem(UseCase):
         if not item:
             raise DoesNotExist(f'Item {item_id} does not exist')
 
-        self._items_repository.update_ranks_for_topic(item.topic_id, rank)
+        new_rank = determine_rank(self._items_repository, rank, item.topic_id)
+        if rank != item.rank:
+            self._items_repository.update_ranks_for_topic(item.topic_id, new_rank, previous_rank=item.rank)
+
         return self._items_repository.update(
             item_id,
             content,
-            determine_rank(self._items_repository, rank, item.topic_id)
+            new_rank
         )

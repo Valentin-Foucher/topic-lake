@@ -47,8 +47,6 @@ class Item(Model):
     user = relationship('User', back_populates='item_creations')
     topic = relationship('Topic', back_populates='item_creations')
 
-    __table_args__ = (UniqueConstraint('topic_id', 'rank', deferrable=True),)
-
 
 class AccessToken(Model):
     __tablename__ = 'access_tokens'

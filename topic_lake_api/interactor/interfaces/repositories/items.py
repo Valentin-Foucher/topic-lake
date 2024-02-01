@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABC
+from typing import Optional
 
 from topic_lake_api.domain.entities.items import Item
 from topic_lake_api.interactor.interfaces.base import Repository
@@ -14,7 +15,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def get(self, item_id: int) -> Item:
+    def get(self, item_id: int) -> Optional[Item]:
         pass
 
     @abstractmethod
@@ -26,7 +27,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def update_ranks_for_topic(self, topic_id: int, rank: int):
+    def update_ranks_for_topic(self, topic_id: int, new_rank: int, previous_rank: int):
         pass
 
     @abstractmethod

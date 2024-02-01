@@ -1,3 +1,4 @@
+import sys
 from typing import Optional
 
 from sqlalchemy import select, update, and_, func, or_, delete
@@ -66,13 +67,27 @@ class ItemsRepository(SQLRepository, IItemsRepository):
             .values(content=content, rank=rank)
         )
 
-    def update_ranks_for_topic(self, topic_id: int, rank: int):
+    def update_ranks_for_topic(self, topic_id: int, new_rank: int, previous_rank: int = sys.maxsize):
+        if previous_rank < new_rank:
+            self._session.execute(
+                update(ItemModel)
+                .where(
+                    and_(
+                        ItemModel.topic_id == topic_id,
+                        ItemModel.rank > previous_rank,
+                        ItemModel.rank <= new_rank
+                    )
+                )
+                .values(rank=ItemModel.rank - 1)
+            )
+
         self._session.execute(
             update(ItemModel)
             .where(
                 and_(
                     ItemModel.topic_id == topic_id,
-                    ItemModel.rank >= rank
+                    ItemModel.rank < previous_rank,
+                    ItemModel.rank >= new_rank
                 )
             )
             .values(rank=ItemModel.rank + 1)
