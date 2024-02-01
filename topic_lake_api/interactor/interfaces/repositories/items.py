@@ -34,3 +34,7 @@ class IItemsRepository(Repository, ABC):
     @abstractmethod
     def get_max_rank(self, topic_id: int) -> int:
         pass
+
+    @abstractmethod
+    def exists(self, topic_id: int, content: str) -> bool:
+        pass

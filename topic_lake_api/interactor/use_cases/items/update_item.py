@@ -1,4 +1,4 @@
-from topic_lake_api.interactor.exceptions import DoesNotExist
+from topic_lake_api.interactor.exceptions import DoesNotExist, InvalidInputData
 from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
 from topic_lake_api.interactor.utils.item_utils import determine_rank
@@ -13,12 +13,15 @@ class UpdateItem(UseCase):
         if not item:
             raise DoesNotExist(f'Item {item_id} does not exist')
 
-        new_rank = determine_rank(self._items_repository, rank, item.topic_id)
+        if content != item.content and self._items_repository.exists(item.topic_id, content):
+            raise InvalidInputData('Cannot rename this item, a similar item already exists')
+
         if rank != item.rank:
-            self._items_repository.update_ranks_for_topic(item.topic_id, new_rank, previous_rank=item.rank)
+            rank = determine_rank(self._items_repository, rank, item.topic_id)
+            self._items_repository.update_ranks_for_topic(item.topic_id, rank, previous_rank=item.rank)
 
         return self._items_repository.update(
             item_id,
             content,
-            new_rank
+            rank
         )

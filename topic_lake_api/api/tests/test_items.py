@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select, delete
 
 from topic_lake_api.api.tests.base import HttpTestCase
@@ -23,7 +25,7 @@ class ItemsTestCase(HttpTestCase):
 
     async def _create_item(self, status_code=201, error_message='', topic_id=1, **overriding_dict):
         response = await self.post(f'/api/v1/topics/{topic_id}/items', {
-            'content': 'Ibiza',
+            'content': uuid.uuid4().hex,
             **overriding_dict
         })
 
@@ -42,7 +44,7 @@ class ItemsTestCase(HttpTestCase):
 
     def _assert_item(self, item):
         self.assertIsInstance(item['id'], int)
-        self.assertEqual('Ibiza', item['content'])
+        self.assertIsInstance(item['content'], str)
         self.assertEqual('test_user', item['user_name'])
         self.assertEqual('Holiday destinations', item['topic_content'])
 
@@ -56,6 +58,16 @@ class ItemsTestCase(HttpTestCase):
         await self._create_item(content='a' * 257,
                                 status_code=422,
                                 error_message='String should have at most 256 characters')
+
+    async def test_recreate_already_existing_topic(self):
+        content = 'already existing item'
+        await self._create_item(content=content)
+        await self._create_item(content=content,
+                                status_code=400,
+                                error_message='This item already exists')
+        await self._create_item(content=content.upper(),
+                                status_code=400,
+                                error_message='This item already exists')
 
     async def test_create_item(self):
         await self._create_item()
@@ -191,3 +203,20 @@ class ItemsTestCase(HttpTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual('new content', self.get_data_from_response(response, 'item.content'))
         self.assertEqual(1, self.get_data_from_response(response, 'item.rank'))
+
+    async def test_update_topic_but_a_similar_one_already_exists(self):
+        content = 'already existing item'
+        await self._create_item(content=content)
+
+        response = await self._create_item()
+        item_to_update_id = self.get_data_from_response(response, 'id')
+
+        response = await self.put(f'/api/v1/topics/1/items/{item_to_update_id}', {
+            'content': 'already existing item',
+            'rank': 1
+        })
+        self.assertEqual(400, response.status_code)
+        self.assertEqual(
+            'Cannot rename this item, a similar item already exists',
+            self.get_data_from_response(response, 'detail')
+        )

@@ -99,3 +99,19 @@ class ItemsRepository(SQLRepository, IItemsRepository):
             .where(ItemModel.topic_id == topic_id)
             .limit(1)
         ).one() or 0
+
+    def exists(self, topic_id: int, content: str) -> bool:
+        try:
+            self._session.scalars(
+                select(ItemModel)
+                .where(
+                    and_(
+                        ItemModel.topic_id == topic_id,
+                        func.lower(ItemModel.content) == content.lower(),
+                    )
+                ).limit(1)
+            ).one()
+        except NoResultFound:
+            return False
+
+        return True

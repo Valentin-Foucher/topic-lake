@@ -1,4 +1,4 @@
-from topic_lake_api.interactor.exceptions import DoesNotExist
+from topic_lake_api.interactor.exceptions import DoesNotExist, InvalidInputData
 from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
 from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
@@ -19,6 +19,9 @@ class CreateItem(UseCase):
 
         if not self._topics_repository.get(topic_id):
             raise DoesNotExist(f'Topic {topic_id} does not exist')
+
+        if self._items_repository.exists(topic_id, content):
+            raise InvalidInputData('This item already exists')
 
         self._items_repository.update_ranks_for_topic(topic_id, rank)
         return self._items_repository.create(
