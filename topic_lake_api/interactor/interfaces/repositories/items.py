@@ -1,3 +1,4 @@
+import sys
 from abc import abstractmethod, ABC
 from typing import Optional
 
@@ -27,7 +28,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def update_ranks_for_topic(self, topic_id: int, new_rank: int, previous_rank: int):
+    def update_ranks_for_topic(self, topic_id: int, new_rank: int, previous_rank: int = sys.maxsize):
         pass
 
     @abstractmethod

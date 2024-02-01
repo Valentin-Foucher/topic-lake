@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select, null, literal, and_, or_, delete, update
+from sqlalchemy import select, null, literal, and_, or_, delete, update, func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
@@ -97,7 +97,7 @@ class TopicsRepository(SQLRepository, ITopicsRepository):
                 .where(
                     and_(
                         TopicModel.parent_topic_id == parent_topic_id,
-                        TopicModel.content == content,
+                        func.lower(TopicModel.content) == content.lower(),
                     )
                 ).limit(1)
             ).one()

@@ -66,6 +66,9 @@ class TopicsTestCase(HttpTestCase):
         await self._create_topic(content=content,
                                  status_code=400,
                                  error_message='This topic already exists')
+        await self._create_topic(content=content.upper(),
+                                 status_code=400,
+                                 error_message='This topic already exists')
 
     async def test_create_topic(self):
         await self._create_topic()
