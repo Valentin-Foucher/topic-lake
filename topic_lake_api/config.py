@@ -2,7 +2,7 @@ from typing import Any
 
 from pyaml_env import parse_config
 
-from topic_lake_api.utils.object_utils import get_nested_element
+from topic_lake_api.domain.utils.object_utils import get_nested_element
 
 
 def load_config(config_file: str = 'config.yaml') -> dict[str, Any]:

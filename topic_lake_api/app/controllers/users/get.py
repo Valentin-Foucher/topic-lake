@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.app.presenters.users import GetUserPresenter
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository
-from topic_lake_api.interactor.use_cases.users.get import GetUser
+from topic_lake_api.use_cases.users.get import GetUser
 
 
 class GetUserController(Controller):

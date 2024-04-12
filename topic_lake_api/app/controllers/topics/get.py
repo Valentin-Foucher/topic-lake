@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.app.presenters.topics import GetTopicPresenter
 from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
-from topic_lake_api.interactor.use_cases.topics.get import GetTopic
+from topic_lake_api.use_cases.topics.get import GetTopic
 
 
 class GetTopicController(Controller):

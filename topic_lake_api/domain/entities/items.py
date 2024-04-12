@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
+from topic_lake_api.domain.entities.base import Entity
+from topic_lake_api.domain.exceptions import DoesNotExist, InvalidInputData
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository, ITopicsRepository, IItemsRepository
-from topic_lake_api.interactor.exceptions import DoesNotExist, InvalidInputData
-from topic_lake_api.interactor.utils.item_utils import determine_rank
+from topic_lake_api.domain.utils.item_utils import determine_rank
 
 
 @dataclass
-class Item:
+class Item(Entity):
     id: int
     content: str
     topic_content: str

@@ -3,17 +3,18 @@ from typing import Optional, TYPE_CHECKING
 
 from typing_extensions import Self
 
+from topic_lake_api.domain.entities.base import Entity
+from topic_lake_api.domain.exceptions import ForbiddenAction, DoesNotExist, InvalidInputData
 from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository
 from topic_lake_api.exceptions import InternalException
-from topic_lake_api.interactor.exceptions import ForbiddenAction, DoesNotExist, InvalidInputData
 
 if TYPE_CHECKING:
     from topic_lake_api.domain.entities import User
 
 
 @dataclass
-class Topic:
+class Topic(Entity):
     id: int
     content: str
     user_id: int

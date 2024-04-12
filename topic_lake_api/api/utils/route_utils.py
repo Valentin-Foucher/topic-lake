@@ -5,11 +5,11 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.requests import Request
 
 from topic_lake_api.api.exceptions import Unauthorized, NotFound
+from topic_lake_api.domain.utils.crypto_utils import decode_jwt
 from topic_lake_api.infra.db.core import get_session
 from topic_lake_api.infra.repositories.access_tokens import AccessTokensRepository
 from topic_lake_api.infra.repositories.base import SQLRepository
 from topic_lake_api.infra.repositories.users import UsersRepository
-from topic_lake_api.utils.crypto_utils import decode_jwt
 
 
 async def ensure_authentication(request: Request, credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):

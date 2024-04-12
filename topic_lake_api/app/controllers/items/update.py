@@ -1,6 +1,6 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.domain.interfaces.repositories import IItemsRepository
-from topic_lake_api.interactor.use_cases.items.update import UpdateItem
+from topic_lake_api.use_cases.items.update import UpdateItem
 
 
 class UpdateItemController(Controller):
@@ -13,4 +13,3 @@ class UpdateItemController(Controller):
             content,
             rank
         )
-

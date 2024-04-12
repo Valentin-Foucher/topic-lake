@@ -15,9 +15,9 @@ from topic_lake_api.api.routes.topics import router as topics_router
 from topic_lake_api.api.routes.users import router as users_router
 from topic_lake_api.api.utils.exception_utils import status_code_from_application_exception
 from topic_lake_api.api.utils.route_utils import inject_scoped_session_in_repositories
+from topic_lake_api.domain.exceptions import ApplicationException
 from topic_lake_api.exceptions import InternalException
 from topic_lake_api.infra.db.core import init_db, shutdown_db
-from topic_lake_api.interactor.exceptions import ApplicationException
 
 logger = logging.getLogger(__name__)
 

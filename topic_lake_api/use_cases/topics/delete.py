@@ -1,6 +1,6 @@
+from topic_lake_api.domain.exceptions import DoesNotExist
 from topic_lake_api.domain.interfaces.repositories import ITopicsRepository, IUsersRepository
-from topic_lake_api.interactor.exceptions import DoesNotExist
-from topic_lake_api.interactor.use_cases.base import UseCase
+from topic_lake_api.use_cases.base import UseCase
 
 
 class DeleteTopic(UseCase):

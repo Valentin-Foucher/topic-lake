@@ -2,7 +2,7 @@ from typing import Optional
 
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.domain.interfaces.repositories import ITopicsRepository, IUsersRepository
-from topic_lake_api.interactor.use_cases.topics.update import UpdateTopic
+from topic_lake_api.use_cases.topics.update import UpdateTopic
 
 
 class UpdateTopicController(Controller):

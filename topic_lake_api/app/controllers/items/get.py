@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.app.presenters.items import GetItemPresenter
 from topic_lake_api.domain.interfaces.repositories import IItemsRepository
-from topic_lake_api.interactor.use_cases.items.get import GetItem
+from topic_lake_api.use_cases.items.get import GetItem
 
 
 class GetItemController(Controller):

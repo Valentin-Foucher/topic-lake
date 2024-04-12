@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.domain.interfaces.base import Presenter
 from topic_lake_api.domain.interfaces.repositories import IItemsRepository, ITopicsRepository, IUsersRepository
-from topic_lake_api.interactor.use_cases.items.create import CreateItem
+from topic_lake_api.use_cases.items.create import CreateItem
 
 
 class CreateItemController(Controller):

@@ -1,12 +1,13 @@
 from dataclasses import dataclass
 
+from topic_lake_api.domain.entities.base import Entity
+from topic_lake_api.domain.exceptions import AlreadyExist
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository
-from topic_lake_api.interactor.exceptions import AlreadyExist
-from topic_lake_api.interactor.utils.encryption_utils import hash_password
+from topic_lake_api.domain.utils.encryption_utils import hash_password
 
 
 @dataclass
-class User:
+class User(Entity):
     id: int
     name: str
     password: str

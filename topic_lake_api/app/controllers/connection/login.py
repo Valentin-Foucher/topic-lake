@@ -2,7 +2,7 @@ from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.domain.interfaces.base import Presenter
 from topic_lake_api.domain.interfaces.repositories import IAccessTokensRepository
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository
-from topic_lake_api.interactor.use_cases.connection.login import LogIn
+from topic_lake_api.use_cases.connection.login import LogIn
 
 
 class LogInController(Controller):

@@ -1,4 +1,4 @@
-from topic_lake_api.interactor.constants import ApplicationExceptionReason
+from topic_lake_api.domain.constants import ApplicationExceptionReason
 
 
 class ApplicationException(Exception):

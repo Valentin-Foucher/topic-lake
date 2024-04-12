@@ -10,7 +10,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker, declarative_base, Sessi
 from sqlalchemy_utils import database_exists, create_database
 
 from topic_lake_api import config
-from topic_lake_api.utils.object_utils import get_object_by_name
+from topic_lake_api.domain.utils.object_utils import get_object_by_name
 
 engine = create_engine(config.get('postgres.connection_string'))
 
