@@ -6,7 +6,7 @@ from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.constants import TOKEN_MAX_DURATION
 from topic_lake_api.domain.interfaces.repositories import IAccessTokensRepository
-from topic_lake_api.domain.utils.crypto_utils import encode_jwt
+from topic_lake_api.domain.utils.jwt_utils import encode_jwt
 from topic_lake_api.infra.db.models import AccessToken
 from topic_lake_api.infra.repositories.base import SQLRepository
 

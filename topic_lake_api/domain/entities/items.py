@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from topic_lake_api.domain.entities.base import Entity
 from topic_lake_api.domain.exceptions import DoesNotExist, InvalidInputData
 from topic_lake_api.domain.interfaces.repositories import IUsersRepository, ITopicsRepository, IItemsRepository
-from topic_lake_api.domain.utils.item_utils import determine_rank
 
 
 @dataclass
@@ -40,7 +39,7 @@ class Item(Entity):
             topic_id,
             user_id,
             content,
-            determine_rank(items_repository, rank, topic_id)
+            cls._determine_rank(items_repository, rank, topic_id)
         )
 
     def update(self, content: str, rank: int, items_repository: IItemsRepository):
@@ -48,7 +47,7 @@ class Item(Entity):
             raise InvalidInputData('Cannot rename this item, a similar item already exists')
 
         if rank != self.rank:
-            rank = determine_rank(items_repository, rank, self.topic_id)
+            rank = self._determine_rank(items_repository, rank, self.topic_id)
             items_repository.update_ranks_for_topic(self.topic_id, rank, previous_rank=self.rank)
 
         return items_repository.update(
@@ -56,3 +55,8 @@ class Item(Entity):
             content,
             rank
         )
+
+    @staticmethod
+    def _determine_rank(items_repository: IItemsRepository, requested_rank: int, topic_id: int) -> int:
+        max_rank = items_repository.get_max_rank(topic_id)
+        return min(requested_rank, max_rank + 1)
