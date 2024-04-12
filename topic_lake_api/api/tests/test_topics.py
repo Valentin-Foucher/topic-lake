@@ -160,15 +160,15 @@ class TopicsTestCase(HttpTestCase):
             child
         second_root
         """
-        response = await self._create_topic()
+        response = await self._create_topic(content="aaaa")
         self.assertEqual(201, response.status_code)
         first_root_topic_id = self.get_data_from_response(response, 'id')
 
-        response = await self._create_topic()
+        response = await self._create_topic(content="bbbb")
         self.assertEqual(201, response.status_code)
         second_root_topic_id = self.get_data_from_response(response, 'id')
 
-        response = await self._create_topic(parent_topic_id=first_root_topic_id)
+        response = await self._create_topic(content="cccc", parent_topic_id=first_root_topic_id)
         self.assertEqual(201, response.status_code)
         child_topic_id = self.get_data_from_response(response, 'id')
 
@@ -177,7 +177,7 @@ class TopicsTestCase(HttpTestCase):
 
         self._assert_topic(self.get_data_from_response(response, 'topics.0'))
         self._assert_topic(self.get_data_from_response(response, 'topics.1'))
-        print(pprint(response.json()))
+
         self._assert_topic(self.get_data_from_response(response, 'topics.0.sub_topics.0'))
         self.assertEqual(first_root_topic_id, self.get_data_from_response(response, 'topics.0.id'))
         self.assertEqual(second_root_topic_id, self.get_data_from_response(response, 'topics.1.id'))
