@@ -1,5 +1,4 @@
 import uuid
-from pprint import pprint
 
 from sqlalchemy import delete
 

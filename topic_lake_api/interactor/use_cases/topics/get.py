@@ -1,5 +1,5 @@
+from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
 from topic_lake_api.interactor.exceptions import DoesNotExist
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
 
 

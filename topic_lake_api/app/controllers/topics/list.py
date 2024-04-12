@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.app.presenters.topics import ListTopicsPresenter
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
-from topic_lake_api.interactor.use_cases.topics.list_topics import ListTopics
+from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
+from topic_lake_api.interactor.use_cases.topics.list import ListTopics
 
 
 class ListTopicsController(Controller):

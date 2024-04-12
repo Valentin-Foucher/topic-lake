@@ -5,9 +5,9 @@ from unittest import IsolatedAsyncioTestCase
 from asgi_lifespan import LifespanManager
 from httpx import AsyncClient, Response
 
-from topic_lake_api.interactor.utils.encryption_utils import hash_password
 from topic_lake_api.infra.db.core import engine, Model, get_session
 from topic_lake_api.infra.db.models import User, AccessToken
+from topic_lake_api.interactor.utils.encryption_utils import hash_password
 from topic_lake_api.utils.crypto_utils import encode_jwt
 from topic_lake_api.utils.object_utils import get_nested_element
 

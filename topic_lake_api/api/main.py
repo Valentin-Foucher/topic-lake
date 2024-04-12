@@ -4,7 +4,6 @@ from starlette import status
 from topic_lake_api.api.utils.app_utils import init_app
 from topic_lake_api.config import load_config
 
-
 app = init_app()
 
 

@@ -1,7 +1,7 @@
 from topic_lake_api.app.controllers.base import Controller
 from topic_lake_api.app.presenters.users import CreateUserPresenter
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
-from topic_lake_api.interactor.use_cases.users.create_user import CreateUser
+from topic_lake_api.domain.interfaces.repositories import IUsersRepository
+from topic_lake_api.interactor.use_cases.users.create import CreateUser
 
 
 class CreateUserController(Controller):

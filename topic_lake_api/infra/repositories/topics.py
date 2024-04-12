@@ -5,10 +5,10 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import aliased
 
 from topic_lake_api.domain.entities.topics import Topic
+from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
 from topic_lake_api.infra.db.models import Topic as TopicModel
 from topic_lake_api.infra.db.models import User as UserModel
 from topic_lake_api.infra.repositories.base import SQLRepository
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
 
 
 class TopicsRepository(SQLRepository, ITopicsRepository):

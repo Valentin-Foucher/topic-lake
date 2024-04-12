@@ -1,6 +1,6 @@
+from topic_lake_api.domain.interfaces.repositories import IAccessTokensRepository
+from topic_lake_api.domain.interfaces.repositories import IUsersRepository
 from topic_lake_api.interactor.exceptions import InvalidInputData
-from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
 from topic_lake_api.interactor.utils.encryption_utils import check_password
 

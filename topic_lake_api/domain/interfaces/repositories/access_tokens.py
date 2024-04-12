@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from typing import Optional
 
-from topic_lake_api.interactor.interfaces.base import Repository
+from topic_lake_api.domain.interfaces.base import Repository
 
 
 class IAccessTokensRepository(Repository, ABC):

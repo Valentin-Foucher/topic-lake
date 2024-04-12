@@ -5,10 +5,10 @@ from sqlalchemy import select, update, and_, func, or_, delete
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.domain.entities.items import Item
+from topic_lake_api.domain.interfaces.repositories import IItemsRepository
 from topic_lake_api.infra.db.models import Item as ItemModel
 from topic_lake_api.infra.db.models import User as UserModel
 from topic_lake_api.infra.repositories.base import SQLRepository
-from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
 
 
 class ItemsRepository(SQLRepository, IItemsRepository):

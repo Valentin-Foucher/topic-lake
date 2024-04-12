@@ -1,4 +1,4 @@
-from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
+from topic_lake_api.domain.interfaces.repositories import IItemsRepository
 from topic_lake_api.interactor.use_cases.base import UseCase
 
 

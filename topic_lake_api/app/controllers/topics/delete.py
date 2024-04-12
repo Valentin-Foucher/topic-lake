@@ -1,7 +1,6 @@
 from topic_lake_api.app.controllers.base import Controller
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
-from topic_lake_api.interactor.use_cases.topics.delete_topic import DeleteTopic
+from topic_lake_api.domain.interfaces.repositories import ITopicsRepository, IUsersRepository
+from topic_lake_api.interactor.use_cases.topics.delete import DeleteTopic
 
 
 class DeleteTopicController(Controller):

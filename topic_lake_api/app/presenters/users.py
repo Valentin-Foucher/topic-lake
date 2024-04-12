@@ -1,7 +1,7 @@
 import dataclasses
 
 from topic_lake_api.domain.entities.users import User
-from topic_lake_api.interactor.interfaces.base import Presenter
+from topic_lake_api.domain.interfaces.base import Presenter
 
 
 class GetUserPresenter(Presenter):

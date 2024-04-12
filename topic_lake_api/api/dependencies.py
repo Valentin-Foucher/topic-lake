@@ -7,15 +7,14 @@ from topic_lake_api.app.presenters.connection import LogInPresenter
 from topic_lake_api.app.presenters.items import GetItemPresenter, ListItemsPresenter, CreateItemPresenter
 from topic_lake_api.app.presenters.topics import ListTopicsPresenter, GetTopicPresenter, CreateTopicPresenter
 from topic_lake_api.app.presenters.users import GetUserPresenter, CreateUserPresenter
+from topic_lake_api.domain.interfaces.repositories import IAccessTokensRepository
+from topic_lake_api.domain.interfaces.repositories import IItemsRepository
+from topic_lake_api.domain.interfaces.repositories import ITopicsRepository
+from topic_lake_api.domain.interfaces.repositories import IUsersRepository
 from topic_lake_api.infra.repositories.access_tokens import AccessTokensRepository
 from topic_lake_api.infra.repositories.items import ItemsRepository
 from topic_lake_api.infra.repositories.topics import TopicsRepository
 from topic_lake_api.infra.repositories.users import UsersRepository
-from topic_lake_api.interactor.interfaces.repositories.access_tokens import IAccessTokensRepository
-from topic_lake_api.interactor.interfaces.repositories.items import IItemsRepository
-from topic_lake_api.interactor.interfaces.repositories.topics import ITopicsRepository
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
-
 
 # Repositories
 UsersRepositoryDependency = Annotated[IUsersRepository, Depends(UsersRepository)]

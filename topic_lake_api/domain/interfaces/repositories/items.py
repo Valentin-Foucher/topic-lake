@@ -1,14 +1,16 @@
 import sys
 from abc import abstractmethod, ABC
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
-from topic_lake_api.domain.entities.items import Item
-from topic_lake_api.interactor.interfaces.base import Repository
+from topic_lake_api.domain.interfaces.base import Repository
+
+if TYPE_CHECKING:
+    from topic_lake_api.domain.entities import Item
 
 
 class IItemsRepository(Repository, ABC):
     @abstractmethod
-    def list(self, topic_id: int, limit: int = 100) -> list[Item]:
+    def list(self, topic_id: int, limit: int = 100) -> list['Item']:
         pass
 
     @abstractmethod
@@ -16,7 +18,7 @@ class IItemsRepository(Repository, ABC):
         pass
 
     @abstractmethod
-    def get(self, item_id: int) -> Optional[Item]:
+    def get(self, item_id: int) -> Optional['Item']:
         pass
 
     @abstractmethod

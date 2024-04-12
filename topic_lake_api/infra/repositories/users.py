@@ -4,9 +4,9 @@ from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
 
 from topic_lake_api.domain.entities.users import User
+from topic_lake_api.domain.interfaces.repositories import IUsersRepository
 from topic_lake_api.infra.db.models import User as UserModel
 from topic_lake_api.infra.repositories.base import SQLRepository
-from topic_lake_api.interactor.interfaces.repositories.users import IUsersRepository
 
 
 class UsersRepository(SQLRepository, IUsersRepository):
